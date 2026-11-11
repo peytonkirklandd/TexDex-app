@@ -1,4 +1,4 @@
-# Texas Wildlife App (Case 2)
+# TexDex-app (Case 2)
 
 ## Goal
 A Texas-only web app: a user photographs a wild animal, an AI model (BioCLIP 2) identifies the species, and each new species is saved to the user's collection and a shared map. What makes it ours is the **data engine**: rarity tiers and a "what lives here this month" location boost built from real GBIF sightings, plus a published accuracy report. The app is the front end for that work.

@@ -1,4 +1,4 @@
-# Texas Wildlife App
+# TexDex-app
 
 Photograph a wild animal in Texas, get an AI identification boosted by real GBIF sighting data, and build your collection and a shared map.
 
