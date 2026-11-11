@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "_note": "MADE-UP test shapes, not real ecoregions. Two plain rectangles that reuse real EPA codes so tests have something to assign to.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"US_L3CODE": "30", "US_L3NAME": "FAKE box around Austin and San Antonio"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-100.0, 29.0], [-97.0, 29.0], [-97.0, 31.0], [-100.0, 31.0], [-100.0, 29.0]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"US_L3CODE": "24", "US_L3NAME": "FAKE box around El Paso"},
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [[[[-107.0, 29.0], [-103.0, 29.0], [-103.0, 32.5], [-107.0, 32.5], [-107.0, 29.0]]]]
+      }
+    }
+  ]
+}
