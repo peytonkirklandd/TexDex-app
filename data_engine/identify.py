@@ -15,6 +15,12 @@ mock to real data without touching code:
 
 If the region file or the month table is missing, identify() still works but
 skips the location boost (photo scores only).
+
+The photo model is set by TEXDEX_IMAGE_SCORER: "bioclip" (default) or
+"placeholder" (see image_scores.py).
+
+A point over water (in Texas, but in no land ecoregion) is not treated as
+"unknown": it uses the "outside_land" rows of the month-by-region table.
 """
 from __future__ import annotations
 
@@ -28,9 +34,9 @@ from pathlib import Path
 from contract.id_contract import NOT_SURE_CUTOFF, NUM_GUESSES, Guess, IDResult, PhotoInput
 
 from .combine import LOCATION_WEIGHT, combine_scores, location_prior
-from .image_scores import DEFAULT_IMAGE_SCORER
+from .image_scores import default_image_scorer
 from .month_region import load_month_region_table
-from .regions import find_region, load_regions
+from .regions import load_regions, region_for_point
 
 log = logging.getLogger(__name__)
 
@@ -67,7 +73,7 @@ def identify_with(
     species_path,
     regions_path=None,
     month_table_path=None,
-    image_scorer=DEFAULT_IMAGE_SCORER,
+    image_scorer=None,
     weight: float = LOCATION_WEIGHT,
 ) -> IDResult:
     """identify() with every file and setting passed in explicitly.
@@ -80,13 +86,16 @@ def identify_with(
     if len(species_ids) < NUM_GUESSES:
         raise ValueError(f"need at least {NUM_GUESSES} species, got {len(species_ids)}")
 
+    if image_scorer is None:
+        image_scorer = default_image_scorer()
     image_scores = image_scorer(photo_path, species_rows)
 
     # Location boost. prior stays None (= no boost) unless we have both data
-    # files and the point falls inside a region.
+    # files and the point is in Texas. Over water the region is "outside_land",
+    # which has its own rows in the table, so Gulf photos get a marine boost.
     prior = None
     if regions_path and month_table_path:
-        region = find_region(latitude, longitude, _load_regions(str(regions_path)))
+        region = region_for_point(latitude, longitude, _load_regions(str(regions_path)))
         if region is not None:
             table = _load_month_table(str(month_table_path))
             counts_here = table.get((region, obs_date.month), {})

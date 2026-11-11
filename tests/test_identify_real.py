@@ -2,7 +2,9 @@
 
 These call the real function directly, so they run no matter what
 USE_FAKE_ID is set to. Photo scores come from small fake scorers here
-because BioCLIP is not wired in yet.
+so these tests need neither the BioCLIP model nor real photos
+(tests/conftest.py selects the placeholder scorer; BioCLIP itself is
+covered in tests/test_image_scores.py).
 """
 from datetime import date
 from pathlib import Path
@@ -21,7 +23,9 @@ REGIONS = FIXTURES / "regions_sample.geojson"
 
 AUSTIN = (30.2672, -97.7431)
 EL_PASO = (31.7619, -106.4850)
-AMARILLO = (35.2, -101.8)  # outside both fake regions
+GULF = (27.5, -96.5)  # off Corpus Christi: in Texas waters, in no land region
+FAR_AWAY = (45.0, -96.5)  # outside the Texas box altogether
+SPECIES_WITH_FISH = FIXTURES / "species_with_fish.csv"
 
 
 @pytest.fixture
@@ -89,9 +93,30 @@ def test_weight_zero_turns_the_boost_off(month_table):
     assert result.guesses[0].confidence == pytest.approx(result.guesses[1].confidence)
 
 
-def test_point_outside_every_region_gets_no_boost(month_table):
+def test_gulf_photo_is_boosted_toward_fish(month_table):
+    def fish_or_bird(photo_path, species_rows):
+        """Fake photo model torn between the red drum and the mockingbird."""
+        scores = {row["species_id"]: 0.01 for row in species_rows}
+        scores["sp_f001"] = 0.45
+        scores["sp_0001"] = 0.45
+        return scores
+
+    kwargs = dict(
+        species_path=SPECIES_WITH_FISH, regions_path=REGIONS,
+        month_table_path=month_table, image_scorer=fish_or_bird,
+    )
+    # In the Gulf in July the made-up sightings are mostly red drum.
+    gulf = identify_with("p.jpg", *GULF, date(2026, 7, 10), **kwargs)
+    validate_result(gulf)
+    assert gulf.guesses[0].species_id == "sp_f001"
+    # The same photo scores in Austin in November go to the mockingbird.
+    austin = identify_with("p.jpg", *AUSTIN, date(2026, 11, 15), **kwargs)
+    assert austin.guesses[0].species_id == "sp_0001"
+
+
+def test_point_outside_texas_gets_no_boost(month_table):
     result = identify_with(
-        "p.jpg", *AMARILLO, date(2026, 11, 15),
+        "p.jpg", *FAR_AWAY, date(2026, 11, 15),
         species_path=SPECIES, regions_path=REGIONS, month_table_path=month_table,
         image_scorer=_two_way_tie,
     )
