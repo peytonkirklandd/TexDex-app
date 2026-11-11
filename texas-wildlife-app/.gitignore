@@ -1,0 +1,28 @@
+# Licensed or raw data never goes in git (see docs/data-sources-log.md)
+data/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Model weights / large files
+*.pt
+*.bin
+*.safetensors
+models/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Claude Code personal settings (shared settings.json IS committed)
+.claude/settings.local.json

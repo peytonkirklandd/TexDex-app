@@ -1,0 +1,2 @@
+pytest>=8
+# Add packages as each half needs them (Supabase client, BioCLIP deps, web framework, etc.)

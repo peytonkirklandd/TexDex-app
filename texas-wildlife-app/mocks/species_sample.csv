@@ -1,0 +1,8 @@
+species_id,scientific_name,common_name,family,protected,venomous
+sp_0001,Mimus polyglottos,Northern Mockingbird,Mimidae,no,no
+sp_0002,Crotalus atrox,Western Diamondback Rattlesnake,Viperidae,no,yes
+sp_0003,Dasypus novemcinctus,Nine-banded Armadillo,Dasypodidae,no,no
+sp_0004,Phrynosoma cornutum,Texas Horned Lizard,Phrynosomatidae,yes,no
+sp_0005,Grus americana,Whooping Crane,Gruidae,yes,no
+sp_0006,Leopardus pardalis,Ocelot,Felidae,yes,no
+sp_0007,Odocoileus virginianus,White-tailed Deer,Cervidae,no,no

@@ -1,0 +1,9 @@
+species_id,region,season,rarity_tier
+sp_0001,30,spring,common
+sp_0001,32,spring,common
+sp_0002,24,summer,uncommon
+sp_0003,33,fall,common
+sp_0004,26,summer,rare
+sp_0005,34,winter,very_rare
+sp_0006,31,spring,very_rare
+sp_0007,30,fall,common
