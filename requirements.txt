@@ -9,3 +9,6 @@ pillow>=10
 # torch and torchvision come in with open_clip_torch. On a Windows ARM laptop
 # install them first with:
 #   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# --- Person B: web app ---
+flask>=3.0
