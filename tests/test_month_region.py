@@ -19,8 +19,14 @@ def test_counts_per_region_month_species(tmp_path):
     assert table[("30", 11)] == {"sp_0001": 6, "sp_0003": 1, "sp_0007": 3}
     assert table[("30", 4)] == {"sp_0001": 2, "sp_0003": 2}
     assert table[("24", 7)] == {"sp_0002": 4, "sp_0004": 1}
-    # The 20th sighting is outside every region, so 19 are counted.
-    assert summary == {"rows": 7, "region_months": 3, "sightings_counted": 19}
+    # Sightings in no land region (the Gulf fish, plus one made-up point
+    # outside both fake boxes) are kept under their own region.
+    assert table[("outside_land", 7)] == {"sp_0001": 1, "sp_f001": 3, "sp_f002": 1}
+    # 25 rows in: 24 counted, and the 1 outside Texas is reported, not hidden.
+    assert summary == {
+        "rows": 10, "region_months": 4, "sightings_counted": 24,
+        "skipped_no_region": 1, "skipped_bad_date": 0,
+    }
 
 
 def test_years_are_pooled(tmp_path):

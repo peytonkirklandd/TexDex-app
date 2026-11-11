@@ -116,6 +116,26 @@ def test_rows_without_region_or_date_are_skipped(tmp_path):
     )
     assert simple_shares(path) == {("sp_0001", "30", "fall"): 1.0}
 
+    # The skipped rows show up in the summary instead of disappearing.
+    summary = build_rarity_table(path, tmp_path / "out.csv")
+    assert summary["skipped_no_region"] == 1
+    assert summary["skipped_bad_date"] == 1
+
+
+def test_water_sightings_get_rarity_tiers_too(tmp_path):
+    # Fish in the Gulf carry the region "outside_land" and are rated like any other.
+    path = _write(
+        tmp_path,
+        [
+            "sp_f001,27.50,-96.50,2025-07-05,outside_land",
+            "sp_f001,27.80,-96.90,2025-07-06,outside_land",
+            "sp_f002,27.50,-96.50,2025-07-05,outside_land",
+        ],
+    )
+    shares = simple_shares(path)
+    assert shares[("sp_f001", "outside_land", "summer")] == pytest.approx(2 / 3)
+    assert shares[("sp_f002", "outside_land", "summer")] == pytest.approx(1 / 3)
+
 
 @pytest.mark.parametrize("method", ["simple", "effort_adjusted"])
 def test_output_file_matches_interface_format(tmp_path, method):

@@ -68,26 +68,41 @@ def tier_for(value: float, cutoffs: list[tuple[float, str]]) -> str:
     return "very_rare"
 
 
-def _read_usable_rows(sightings_path):
+def new_skip_counts() -> dict:
+    """Counter for rows a step could not use, so nothing is dropped silently."""
+    return {"skipped_no_region": 0, "skipped_bad_date": 0}
+
+
+def _read_usable_rows(sightings_path, skipped: dict | None = None):
     """Yield (species_id, region, obs_date, latitude, longitude) for rows that
-    have a region and a readable date. Skips the rest."""
+    have a region and a readable date. Rows it cannot use are counted in
+    `skipped` (see new_skip_counts) instead of vanishing.
+
+    Note: sightings over water are NOT skipped here. regions.assign_regions()
+    gives them the region "outside_land", so they are counted like any other.
+    An empty region only means outside Texas or unusable coordinates.
+    """
+    if skipped is None:
+        skipped = new_skip_counts()
     with open(sightings_path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             if not row.get("region"):
-                continue  # outside every region
+                skipped["skipped_no_region"] += 1
+                continue
             try:
                 # [:10] keeps "2025-11-01" from longer stamps like "2025-11-01T08:30:00"
                 obs_date = date.fromisoformat(row["obs_date"][:10])
             except (TypeError, ValueError):
+                skipped["skipped_bad_date"] += 1
                 continue
             yield row["species_id"], row["region"], obs_date, row["latitude"], row["longitude"]
 
 
-def simple_shares(sightings_path) -> dict:
+def simple_shares(sightings_path, skipped: dict | None = None) -> dict:
     """{(species_id, region, season): share of all sightings in that region+season}"""
     counts = defaultdict(int)  # (species, region, season) -> sightings
     totals = defaultdict(int)  # (region, season) -> sightings
-    for species_id, region, obs_date, _lat, _lon in _read_usable_rows(sightings_path):
+    for species_id, region, obs_date, _lat, _lon in _read_usable_rows(sightings_path, skipped):
         season = season_of(obs_date)
         counts[(species_id, region, season)] += 1
         totals[(region, season)] += 1
@@ -96,11 +111,11 @@ def simple_shares(sightings_path) -> dict:
     }
 
 
-def effort_adjusted_frequencies(sightings_path) -> dict:
+def effort_adjusted_frequencies(sightings_path, skipped: dict | None = None) -> dict:
     """{(species_id, region, season): fraction of visits that reported the species}"""
     visits = defaultdict(set)  # (region, season) -> set of visits
     species_visits = defaultdict(set)  # (species, region, season) -> set of visits
-    for species_id, region, obs_date, lat, lon in _read_usable_rows(sightings_path):
+    for species_id, region, obs_date, lat, lon in _read_usable_rows(sightings_path, skipped):
         season = season_of(obs_date)
         # One visit = one place on one day. Using a set means the same
         # species logged 300 times on one visit still counts once.
@@ -119,10 +134,11 @@ def build_rarity_table(sightings_path, out_path, method: str = "effort_adjusted"
     A species only gets a row for a region+season where it was actually seen.
     No row means "no record here", which is different from "very_rare".
     """
+    skipped = new_skip_counts()
     if method == "simple":
-        values, cutoffs = simple_shares(sightings_path), SIMPLE_CUTOFFS
+        values, cutoffs = simple_shares(sightings_path, skipped), SIMPLE_CUTOFFS
     elif method == "effort_adjusted":
-        values, cutoffs = effort_adjusted_frequencies(sightings_path), EFFORT_CUTOFFS
+        values, cutoffs = effort_adjusted_frequencies(sightings_path, skipped), EFFORT_CUTOFFS
     else:
         raise ValueError(f"unknown method: {method!r} (use 'simple' or 'effort_adjusted')")
 
@@ -136,4 +152,4 @@ def build_rarity_table(sightings_path, out_path, method: str = "effort_adjusted"
             tier = tier_for(value, cutoffs)
             tier_counts[tier] += 1
             writer.writerow([species_id, region, season, tier])
-    return {"method": method, "rows": len(values), "tiers": dict(tier_counts)}
+    return {"method": method, "rows": len(values), "tiers": dict(tier_counts), **skipped}

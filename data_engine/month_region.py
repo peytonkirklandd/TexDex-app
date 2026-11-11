@@ -26,13 +26,18 @@ def build_month_region_table(sightings_path, out_path) -> dict:
     """Count sightings per region x month x species and write them to a CSV.
     Years are pooled: every November from every year goes in month 11."""
     counts = defaultdict(int)  # (region, month, species_id) -> sightings
+    # Rows we cannot use are counted, not silently dropped. Sightings over
+    # water are not among them: they carry the region "outside_land".
+    skipped = {"skipped_no_region": 0, "skipped_bad_date": 0}
     with open(sightings_path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             if not row.get("region"):
-                continue  # outside every region
+                skipped["skipped_no_region"] += 1  # outside Texas or bad coordinates
+                continue
             try:
                 month = date.fromisoformat(row["obs_date"][:10]).month
             except (TypeError, ValueError):
+                skipped["skipped_bad_date"] += 1
                 continue
             counts[(row["region"], month, row["species_id"])] += 1
 
@@ -47,6 +52,7 @@ def build_month_region_table(sightings_path, out_path) -> dict:
         "rows": len(counts),
         "region_months": len({(region, month) for region, month, _ in counts}),
         "sightings_counted": sum(counts.values()),
+        **skipped,
     }
 
 

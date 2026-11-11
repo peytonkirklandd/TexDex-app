@@ -8,6 +8,11 @@ Input files
 
 Output: the same sightings CSV with one extra column, `region`.
 
+Sightings that are in Texas but not inside any land ecoregion (the Gulf, bays,
+barrier-island edges) are NOT dropped. They get the region code
+OUTSIDE_REGION, so marine fish, sharks, rays and seabirds still get rarity
+tiers and a location boost of their own.
+
 Why plain Python instead of geopandas: the "is this point inside this shape"
 test is about 10 lines, has no install headaches on the Hugging Face Space, and
 we can explain it line by line. If the full GBIF download turns out too slow,
@@ -22,6 +27,18 @@ from pathlib import Path
 
 # The column in the EPA Level III ecoregion file that holds the region code.
 EPA_CODE_PROPERTY = "US_L3CODE"
+
+# Region code for a point that is inside the Texas box below but outside
+# every land ecoregion. In practice that is Gulf and bay water.
+OUTSIDE_REGION = "outside_land"
+
+# A loose rectangle around Texas plus its Gulf waters:
+# (min_lon, min_lat, max_lon, max_lat). PLACEHOLDER edges, to be checked
+# against the real download.
+# Why we need it: without a limit, "outside every ecoregion" would also
+# swallow plain mistakes, like a sighting at latitude 0 / longitude 0 or one
+# in Oklahoma, and count them as Gulf sightings.
+TEXAS_BOUNDS = (-106.7, 25.5, -93.0, 36.6)
 
 
 def _point_in_ring(lon: float, lat: float, ring: list) -> bool:
@@ -99,23 +116,46 @@ def find_region(latitude: float, longitude: float, regions: list[dict]) -> str |
     return None
 
 
+def region_for_point(
+    latitude: float, longitude: float, regions: list[dict], bounds=TEXAS_BOUNDS
+) -> str | None:
+    """The region code to use for a point. Three possible answers:
+    - an ecoregion code, if the point is inside one
+    - OUTSIDE_REGION, if it is inside the Texas box but in no ecoregion (water)
+    - None, if it is outside the Texas box altogether (not our data)
+    """
+    code = find_region(latitude, longitude, regions)
+    if code is not None:
+        return code
+    min_lon, min_lat, max_lon, max_lat = bounds
+    if min_lon <= longitude <= max_lon and min_lat <= latitude <= max_lat:
+        return OUTSIDE_REGION
+    return None
+
+
 def assign_regions(
     sightings_path,
     regions_path,
     out_path,
     code_property: str = EPA_CODE_PROPERTY,
+    bounds=TEXAS_BOUNDS,
 ) -> dict:
     """Add a `region` column to a sightings CSV. Returns a small summary dict.
 
     Reads and writes one row at a time, so a huge file never has to fit in memory.
-    Sightings outside every region keep an empty `region` and are counted as
-    "unassigned"; later steps skip them.
+    Every row is kept and every row is counted in exactly one summary bucket:
+    - in_ecoregion:   region = the ecoregion code
+    - outside_land:   region = OUTSIDE_REGION (in the Texas box, in no ecoregion)
+    - outside_texas:  region left empty (outside the Texas box; later steps skip it)
+    - bad_coordinates: region left empty (latitude/longitude missing or not a number)
     """
     regions = load_regions(regions_path, code_property)
     # Many sightings share the exact same coordinates (popular birding spots),
     # so remember answers we already worked out.
     cache: dict[tuple[float, float], str | None] = {}
-    summary = {"rows": 0, "assigned": 0, "unassigned": 0, "bad_coordinates": 0}
+    summary = {
+        "rows": 0, "in_ecoregion": 0, "outside_land": 0, "outside_texas": 0, "bad_coordinates": 0,
+    }
 
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     with open(sightings_path, newline="", encoding="utf-8") as fin, open(
@@ -134,9 +174,14 @@ def assign_regions(
                 writer.writerow(row)
                 continue
             if point not in cache:
-                cache[point] = find_region(point[0], point[1], regions)
+                cache[point] = region_for_point(point[0], point[1], regions, bounds)
             code = cache[point]
             row["region"] = code or ""
-            summary["assigned" if code else "unassigned"] += 1
+            if code is None:
+                summary["outside_texas"] += 1
+            elif code == OUTSIDE_REGION:
+                summary["outside_land"] += 1
+            else:
+                summary["in_ecoregion"] += 1
             writer.writerow(row)
     return summary
