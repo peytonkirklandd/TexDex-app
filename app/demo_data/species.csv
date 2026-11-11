@@ -1,0 +1,85 @@
+species_id,scientific_name,common_name,family,protected,venomous
+sp_0001,Mimus polyglottos,Northern Mockingbird,Mimidae,no,no
+sp_0002,Crotalus atrox,Western Diamondback Rattlesnake,Viperidae,no,yes
+sp_0003,Dasypus novemcinctus,Nine-banded Armadillo,Dasypodidae,no,no
+sp_0004,Phrynosoma cornutum,Texas Horned Lizard,Phrynosomatidae,yes,no
+sp_0005,Grus americana,Whooping Crane,Gruidae,yes,no
+sp_0006,Leopardus pardalis,Ocelot,Felidae,yes,no
+sp_0007,Odocoileus virginianus,White-tailed Deer,Cervidae,no,no
+sp_0008,Cardinalis cardinalis,Northern Cardinal,Cardinalidae,no,no
+sp_0009,Tyrannus forficatus,Scissor-tailed Flycatcher,Tyrannidae,no,no
+sp_0010,Geococcyx californianus,Greater Roadrunner,Cuculidae,no,no
+sp_0011,Buteo jamaicensis,Red-tailed Hawk,Accipitridae,no,no
+sp_0012,Cathartes aura,Turkey Vulture,Cathartidae,no,no
+sp_0013,Ardea herodias,Great Blue Heron,Ardeidae,no,no
+sp_0014,Platalea ajaja,Roseate Spoonbill,Threskiornithidae,no,no
+sp_0015,Pelecanus occidentalis,Brown Pelican,Pelecanidae,no,no
+sp_0016,Setophaga chrysoparia,Golden-cheeked Warbler,Parulidae,yes,no
+sp_0017,Vireo atricapilla,Black-capped Vireo,Vireonidae,no,no
+sp_0018,Bubo virginianus,Great Horned Owl,Strigidae,no,no
+sp_0019,Meleagris gallopavo,Wild Turkey,Phasianidae,no,no
+sp_0020,Archilochus alexandri,Black-chinned Hummingbird,Trochilidae,no,no
+sp_0021,Caracara plancus,Crested Caracara,Falconidae,no,no
+sp_0022,Cyanocorax yncas,Green Jay,Corvidae,no,no
+sp_0023,Dendrocygna autumnalis,Black-bellied Whistling-Duck,Anatidae,no,no
+sp_0024,Haliaeetus leucocephalus,Bald Eagle,Accipitridae,no,no
+sp_0025,Tympanuchus pallidicinctus,Lesser Prairie-Chicken,Phasianidae,yes,no
+sp_0026,Odocoileus hemionus,Mule Deer,Cervidae,no,no
+sp_0027,Antilocapra americana,Pronghorn,Antilocapridae,no,no
+sp_0028,Pecari tajacu,Collared Peccary,Tayassuidae,no,no
+sp_0029,Canis latrans,Coyote,Canidae,no,no
+sp_0030,Lynx rufus,Bobcat,Felidae,no,no
+sp_0031,Puma concolor,Mountain Lion,Felidae,no,no
+sp_0032,Procyon lotor,Raccoon,Procyonidae,no,no
+sp_0033,Didelphis virginiana,Virginia Opossum,Didelphidae,no,no
+sp_0034,Sciurus niger,Eastern Fox Squirrel,Sciuridae,no,no
+sp_0035,Cynomys ludovicianus,Black-tailed Prairie Dog,Sciuridae,no,no
+sp_0036,Tadarida brasiliensis,Mexican Free-tailed Bat,Molossidae,no,no
+sp_0037,Lepus californicus,Black-tailed Jackrabbit,Leporidae,no,no
+sp_0038,Ursus americanus,American Black Bear,Ursidae,yes,no
+sp_0039,Lontra canadensis,North American River Otter,Mustelidae,no,no
+sp_0040,Tursiops truncatus,Common Bottlenose Dolphin,Delphinidae,no,no
+sp_0041,Sus scrofa,Feral Hog,Suidae,no,no
+sp_0042,Agkistrodon piscivorus,Northern Cottonmouth,Viperidae,no,yes
+sp_0043,Agkistrodon laticinctus,Broad-banded Copperhead,Viperidae,no,yes
+sp_0044,Micrurus tener,Texas Coralsnake,Elapidae,no,yes
+sp_0045,Pantherophis obsoletus,Western Ratsnake,Colubridae,no,no
+sp_0046,Masticophis flagellum,Coachwhip,Colubridae,no,no
+sp_0047,Anolis carolinensis,Green Anole,Dactyloidae,no,no
+sp_0048,Sceloporus olivaceus,Texas Spiny Lizard,Phrynosomatidae,no,no
+sp_0049,Crotaphytus collaris,Eastern Collared Lizard,Crotaphytidae,no,no
+sp_0050,Alligator mississippiensis,American Alligator,Alligatoridae,no,no
+sp_0051,Terrapene ornata,Ornate Box Turtle,Emydidae,no,no
+sp_0052,Trachemys scripta,Red-eared Slider,Emydidae,no,no
+sp_0053,Lepidochelys kempii,Kemp's Ridley Sea Turtle,Cheloniidae,yes,no
+sp_0054,Gopherus berlandieri,Texas Tortoise,Testudinidae,yes,no
+sp_0055,Crotalus lepidus,Rock Rattlesnake,Viperidae,no,yes
+sp_0056,Incilius nebulifer,Gulf Coast Toad,Bufonidae,no,no
+sp_0057,Anaxyrus houstonensis,Houston Toad,Bufonidae,yes,no
+sp_0058,Lithobates catesbeianus,American Bullfrog,Ranidae,no,no
+sp_0059,Hyla cinerea,Green Treefrog,Hylidae,no,no
+sp_0060,Acris blanchardi,Blanchard's Cricket Frog,Hylidae,no,no
+sp_0061,Eurycea sosorum,Barton Springs Salamander,Plethodontidae,yes,no
+sp_0062,Eurycea rathbuni,Texas Blind Salamander,Plethodontidae,yes,no
+sp_0063,Ambystoma mavortium,Barred Tiger Salamander,Ambystomatidae,no,no
+sp_0064,Scaphiopus couchii,Couch's Spadefoot,Scaphiopodidae,no,no
+sp_0065,Gastrophryne olivacea,Western Narrow-mouthed Toad,Microhylidae,no,no
+sp_0066,Micropterus treculii,Guadalupe Bass,Centrarchidae,no,no
+sp_0067,Micropterus salmoides,Largemouth Bass,Centrarchidae,no,no
+sp_0068,Atractosteus spatula,Alligator Gar,Lepisosteidae,no,no
+sp_0069,Ictalurus punctatus,Channel Catfish,Ictaluridae,no,no
+sp_0070,Sciaenops ocellatus,Red Drum,Sciaenidae,no,no
+sp_0071,Cynoscion nebulosus,Spotted Seatrout,Sciaenidae,no,no
+sp_0072,Paralichthys lethostigma,Southern Flounder,Paralichthyidae,no,no
+sp_0073,Megalops atlanticus,Tarpon,Megalopidae,no,no
+sp_0074,Herichthys cyanoguttatus,Rio Grande Cichlid,Cichlidae,no,no
+sp_0075,Lepomis macrochirus,Bluegill,Centrarchidae,no,no
+sp_0076,Cyprinodon bovinus,Leon Springs Pupfish,Cyprinodontidae,yes,no
+sp_0077,Lutjanus campechanus,Northern Red Snapper,Lutjanidae,no,no
+sp_0078,Carcharhinus leucas,Bull Shark,Carcharhinidae,no,no
+sp_0079,Carcharhinus limbatus,Blacktip Shark,Carcharhinidae,no,no
+sp_0080,Sphyrna lewini,Scalloped Hammerhead,Sphyrnidae,no,no
+sp_0081,Hypanus sabinus,Atlantic Stingray,Dasyatidae,no,yes
+sp_0082,Rhinoptera bonasus,Cownose Ray,Rhinopteridae,no,no
+sp_0083,Ginglymostoma cirratum,Nurse Shark,Ginglymostomatidae,no,no
+sp_0084,Pristis pectinata,Smalltooth Sawfish,Pristidae,yes,no
