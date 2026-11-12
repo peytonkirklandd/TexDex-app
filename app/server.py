@@ -18,6 +18,8 @@ from pathlib import Path
 
 from flask import Flask, g, jsonify, request, send_file, send_from_directory
 
+from data_engine.rarity import season_of
+
 from . import game, store
 from .catch import CatchFlow
 from .config import load_config, share_files_with_identify
@@ -183,7 +185,12 @@ def create_app(config: dict | None = None) -> Flask:
     def dex_view():
         region = request.args.get("region") or None
         group = request.args.get("group") or None
-        return jsonify(dex.view(store.catches_for_user(db, g.user_id), region, group))
+        # season=now means "the season it is today", worked out here on the
+        # server so every user gets the same season boundaries as rarity.
+        season = request.args.get("season") or None
+        if season == "now":
+            season = season_of(date.today())
+        return jsonify(dex.view(store.catches_for_user(db, g.user_id), region, group, season))
 
     @app.get("/api/species/<species_id>")
     @login_required
