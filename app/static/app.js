@@ -478,7 +478,7 @@ function renderMap() {
   const colour = Object.fromEntries(m.regions.map((r) => [r.code, r.color]));
   const shown = map.pins.map((p, i) => ({ ...p, i })).filter((p) => !m.region || p.region === m.region);
   const view = mapView(map, m.region);
-  const r = view[2] * 0.017;  // pin size follows the zoom, so pins look the same size on screen
+  const r = view[2] * 0.01;  // pin size follows the zoom, so pins look the same size on screen
 
   // clip-path cuts every region off at the Texas outline, because the EPA
   // shapes carry on into neighbouring states.
@@ -491,8 +491,8 @@ function renderMap() {
       <path class="outline" d="${map.outline}"/>
       ${m.region ? "" : map.regions.filter((s) => s.label).map((s) => `<text class="lbl" x="${s.label[0]}" y="${s.label[1] + 9}" font-size="26">${esc(s.code)}</text>`).join("")}
       ${shown.map((p) => `<g class="pin${p.mine ? " mine" : ""}${p.i === m.pin ? " sel" : ""}" data-pin="${p.i}">
-        ${p.approximate ? `<circle class="halo" cx="${p.x}" cy="${p.y}" r="${r * 2.6}"/>` : ""}
-        <circle cx="${p.x}" cy="${p.y}" r="${p.mine ? r : r * 0.75}"/></g>`).join("")}
+        ${p.approximate ? `<circle class="halo" cx="${p.x}" cy="${p.y}" r="${r * 3.2}"/>` : ""}
+        <circle cx="${p.x}" cy="${p.y}" r="${p.mine ? r : r * 0.8}"/></g>`).join("")}
     </svg>
     <svg class="compass" viewBox="0 0 40 40"><circle cx="20" cy="22" r="13" fill="none" stroke="#2b2620"/><path d="M20 9l4 13h-8z" fill="#2b2620"/><path d="M20 35l-4-13h8z" fill="none" stroke="#2b2620"/><text x="20" y="7" font-size="8" text-anchor="middle" font-family="monospace">N</text></svg>
     ${colour.outside_land ? `<button class="gulf-btn${m.region === "outside_land" ? " on" : ""}" data-region="outside_land">Gulf waters</button>` : ""}`;
