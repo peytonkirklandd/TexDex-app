@@ -88,6 +88,7 @@ def build_map(regions_geojson, outline_geojson) -> dict:
     # this point in?" for each, and average the points per region.
     regions = load_regions(regions_geojson)
     sums: dict[str, list[float]] = {}
+    boxes: dict[str, list[float]] = {}  # region -> [min_x, min_y, max_x, max_y] on the drawing
     step = 0.2
     lat = box[1]
     while lat <= box[3]:
@@ -100,6 +101,11 @@ def build_map(regions_geojson, outline_geojson) -> dict:
                     total[0] += lon
                     total[1] += lat
                     total[2] += 1
+                    # Grow this region's rectangle to include the point. The
+                    # Map tab zooms to this rectangle when a region is tapped.
+                    x, y = proj.xy(lon, lat)
+                    b = boxes.setdefault(code, [x, y, x, y])
+                    b[0], b[1], b[2], b[3] = min(b[0], x), min(b[1], y), max(b[2], x), max(b[3], y)
             lon += step
         lat += step
 
@@ -112,7 +118,8 @@ def build_map(regions_geojson, outline_geojson) -> dict:
         "width": WIDTH,
         "height": proj.height,
         "outline": _path(texas, proj),
-        "regions": [{"code": code, "path": path, "label": labels.get(code)}
+        "regions": [{"code": code, "path": path, "label": labels.get(code),
+                     "bbox": boxes.get(code)}
                     for code, path in shapes.items()],
         "box": box,
     }

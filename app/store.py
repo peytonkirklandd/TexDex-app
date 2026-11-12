@@ -239,6 +239,6 @@ def all_catch_points(db_path) -> list[dict]:
     are already blurred for protected species (see privacy.py)."""
     with connect(db_path) as conn:
         rows = conn.execute(
-            "SELECT user_id, species_id, latitude, longitude, tier FROM catches "
-            "WHERE latitude IS NOT NULL").fetchall()
+            "SELECT id, user_id, species_id, latitude, longitude, region, tier, caught_at "
+            "FROM catches WHERE latitude IS NOT NULL ORDER BY id DESC").fetchall()
     return [dict(r) for r in rows]

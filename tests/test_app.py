@@ -383,3 +383,78 @@ def test_sure_model_goes_through(config, dex, monkeypatch):
     monkeypatch.setattr("app.catch.identify", _fake_model(True, True))
     result = CatchFlow(config, dex).start_identify(user, jpeg_bytes(sharp_image()), *AUSTIN)
     assert result["ok"] and result["guesses"][0]["common_name"] == "White-tailed Deer"
+
+
+# ---------- the map tab ----------
+
+OUTLINE = ('{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"NAME":"Texas"},'
+           '"geometry":{"type":"Polygon","coordinates":[[[-107,25.5],[-93,25.5],[-93,36.6],[-107,36.6],[-107,25.5]]]}}]}')
+
+
+@pytest.fixture
+def map_config(config, tmp_path):
+    """Config with made-up map shapes: the two fake region boxes from
+    tests/fixtures and a plain rectangle standing in for the Texas outline."""
+    from pathlib import Path
+    outline = tmp_path / "outline.geojson"
+    outline.write_text(OUTLINE)
+    config.update(outline_geojson=outline,
+                  regions_geojson=Path(__file__).parent / "fixtures" / "regions_sample.geojson")
+    return config
+
+
+def _catch(client, lat, lon):
+    body = send_photo(client, lat=lat, lon=lon).get_json()
+    return client.post("/api/catches", json={
+        "pending_id": body["pending_id"], "species_id": body["guesses"][0]["species_id"]}).get_json()
+
+
+def test_map_without_shape_files_says_unavailable(client):
+    sign_up(client)
+    assert client.get("/api/map").get_json() == {"available": False}
+
+
+def test_each_located_catch_becomes_a_pin_in_its_region(map_config):
+    app = create_app(map_config)
+    alice, bob = app.test_client(), app.test_client()
+    sign_up(alice, "alice_test")
+    sign_up(bob, "bob_test")
+    reveal = _catch(alice, *AUSTIN)          # inside fake region "30"
+    send_photo(alice, lat=None)              # never confirmed, and no location: no pin
+
+    mine = alice.get("/api/map").get_json()
+    assert mine["available"] and len(mine["pins"]) == 1
+    pin = mine["pins"][0]
+    assert pin["region"] == "30" and pin["mine"] and pin["catch_id"] == reveal["catch_id"]
+    assert pin["common_name"] == reveal["species"]["common_name"]
+    # Every region comes with a rectangle to zoom to, and the pin is inside its region's.
+    box = next(r["bbox"] for r in mine["regions"] if r["code"] == "30")
+    assert box[0] <= pin["x"] <= box[2] and box[1] <= pin["y"] <= box[3]
+
+    # Someone else sees the same pin, but not whose it is and not the photo.
+    theirs = bob.get("/api/map").get_json()["pins"][0]
+    assert theirs["mine"] is False and theirs["catch_id"] is None
+    assert "user_id" not in theirs and "latitude" not in theirs
+
+
+def test_protected_species_pin_is_only_a_rough_area(map_config, dex, tmp_path):
+    from app.texas_map import build_map, project_point
+    store.init_db(map_config["db_path"])
+    user = store.create_user(map_config["db_path"], "ocelot_fan", "not-a-real-password", "Fan")
+    photo = tmp_path / "ocelot.jpg"
+    sharp_image().save(photo)
+    exact = (29.6134, -98.4178)
+    pending = store.add_pending(map_config["db_path"], user, str(photo), "hash", *exact,
+                                [{"species_id": "sp_0006", "confidence": 0.9}])
+    CatchFlow(map_config, dex).confirm_catch(user, pending, "sp_0006")
+
+    client = create_app(map_config).test_client()
+    client.post("/api/login", json={"username": "ocelot_fan", "password": "not-a-real-password"})
+    pin = client.get("/api/map").get_json()["pins"][0]
+
+    drawing = build_map(map_config["regions_geojson"], map_config["outline_geojson"])
+    assert pin["approximate"] is True
+    # The pin sits on the blurred point (rounded to about 1 km like every shared pin).
+    from app.privacy import location_for_shared_map
+    assert (pin["x"], pin["y"]) == project_point(drawing, *location_for_shared_map(*blur_location(*exact)))
+    assert (pin["x"], pin["y"]) != project_point(drawing, *exact)

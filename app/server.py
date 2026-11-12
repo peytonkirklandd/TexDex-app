@@ -199,21 +199,37 @@ def create_app(config: dict | None = None) -> Flask:
     @app.get("/api/map")
     @login_required
     def texas_map():
-        """The Texas drawing plus everyone's catches as dots (the shared map)."""
+        """The Texas drawing plus a pin for every catch that has a location
+        (the shared map). Where a pin goes comes from the phone's GPS reading
+        at the moment the photo was taken, saved with the catch."""
         if state["map"] is None:
             state["map"] = build_map(config["regions_geojson"], config["outline_geojson"])
         data = state["map"]
         if not data["available"]:
             return jsonify(available=False)
-        dots = []
+        pins = []
         for point in store.all_catch_points(db):
+            sp = dex.species.get(point["species_id"])
+            if sp is None:
+                continue
             # Protected species were blurred before saving; here every point
             # is also rounded to about 1 km for the user's own privacy.
             lat, lon = location_for_shared_map(point["latitude"], point["longitude"])
             x, y = project_point(data, lat, lon)
-            dots.append({"x": x, "y": y, "tier": point["tier"], "mine": point["user_id"] == g.user_id})
+            mine = point["user_id"] == g.user_id
+            pins.append({
+                "x": x, "y": y, "tier": point["tier"], "mine": mine,
+                "region": point["region"],
+                "species_id": sp["species_id"], "common_name": sp["common_name"], "icon": sp["icon"],
+                # True = this pin only marks a rough 25 km area (protected species).
+                "approximate": sp["protected"],
+                "date": point["caught_at"][:10],
+                # Other people's pins carry no user id and no photo, only
+                # what was seen and roughly where.
+                "catch_id": point["id"] if mine else None,
+            })
         return jsonify(available=True, width=data["width"], height=data["height"],
-                       outline=data["outline"], regions=data["regions"], dots=dots)
+                       outline=data["outline"], regions=data["regions"], pins=pins)
 
     @app.get("/api/region")
     @login_required
@@ -270,6 +286,6 @@ def create_app(config: dict | None = None) -> Flask:
         return jsonify(ok=False, error={
             "code": "too_big", "title": "That file is too big",
             "message": "Photos need to be under 15 MB.",
-            "tip": "Take the photo with the in-app camera instead."}), 413
+            "tip": "Take the photo again with the camera."}), 413
 
     return app

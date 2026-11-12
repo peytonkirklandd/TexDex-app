@@ -21,19 +21,19 @@ SEASONS = ["spring", "summer", "fall", "winter"]
 # colours and one-line descriptions are ours. A region code that is not in
 # this table still works: it is shown under its code with a neutral colour.
 REGION_INFO = {
-    "23": ("Arizona/New Mexico Mountains", "Sky-island peaks of the Guadalupes", "#8e7cc3"),
-    "24": ("Chihuahuan Deserts", "Big Bend country: desert, canyon, yucca", "#e0884a"),
-    "25": ("High Plains", "The Llano Estacado: flat, windy, wide open", "#d9b44a"),
-    "26": ("Southwestern Tablelands", "Red canyons and caprock of the Panhandle", "#c96a4b"),
-    "27": ("Central Great Plains", "Rolling mesquite and red-dirt prairie", "#b8a35e"),
-    "29": ("Cross Timbers", "Post-oak woods and tallgrass in between", "#7fa650"),
-    "30": ("Edwards Plateau", "The Hill Country: limestone, springs, caves", "#4fae7b"),
-    "31": ("Southern Texas Plains", "Thorn-scrub brush country", "#c9a13e"),
-    "32": ("Texas Blackland Prairies", "Deep black soil, the last tallgrass", "#5b8fd6"),
-    "33": ("East Central Texas Plains", "Post-oak savanna", "#6fb39a"),
-    "34": ("Western Gulf Coastal Plain", "Marsh, bay and barrier island", "#38b6c9"),
-    "35": ("South Central Plains", "The Piney Woods", "#3f9163"),
-    "outside_land": ("Gulf & Coastal Waters", "Open water, bays and surf", "#3d7fe0"),
+    "23": ("Arizona/New Mexico Mountains", "Sky-island peaks of the Guadalupes", "#8a7a9a"),
+    "24": ("Chihuahuan Deserts", "Big Bend country: desert, canyon, yucca", "#c98e5a"),
+    "25": ("High Plains", "The Llano Estacado: flat, windy, wide open", "#d2b46a"),
+    "26": ("Southwestern Tablelands", "Red canyons and caprock of the Panhandle", "#b5694a"),
+    "27": ("Central Great Plains", "Rolling mesquite and red-dirt prairie", "#b9a878"),
+    "29": ("Cross Timbers", "Post-oak woods and tallgrass in between", "#8f9a5a"),
+    "30": ("Edwards Plateau", "The Hill Country: limestone, springs, caves", "#6f8f6a"),
+    "31": ("Southern Texas Plains", "Thorn-scrub brush country", "#c2a24e"),
+    "32": ("Texas Blackland Prairies", "Deep black soil, the last tallgrass", "#7d8fa3"),
+    "33": ("East Central Texas Plains", "Post-oak savanna", "#8fae9a"),
+    "34": ("Western Gulf Coastal Plain", "Marsh, bay and barrier island", "#6aa3a8"),
+    "35": ("South Central Plains", "The Piney Woods", "#4f7a58"),
+    "outside_land": ("Gulf & Coastal Waters", "Open water, bays and surf", "#5f86a8"),
 }
 
 # How scientific class names are grouped into the filter buttons. A class
