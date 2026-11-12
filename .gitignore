@@ -26,3 +26,6 @@ models/
 
 # Claude Code personal settings (shared settings.json IS committed)
 .claude/settings.local.json
+
+# Impeccable design tool: local cache (DESIGN.md, PRODUCT.md and .impeccable/design.json ARE committed)
+.impeccable/hook.cache.json

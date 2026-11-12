@@ -1,0 +1,414 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T16:01:03.842918+00:00",
+  "title": "Design System: TexDex",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Parchment",
+        "tonalRamp": [
+          "oklch(15% 0.021 85)",
+          "oklch(25% 0.026 85)",
+          "oklch(35% 0.031 85)",
+          "oklch(45% 0.035 85)",
+          "oklch(55% 0.040 85)",
+          "oklch(65% 0.035 85)",
+          "oklch(80% 0.028 85)",
+          "oklch(95% 0.021 85)"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Bond Card",
+        "tonalRamp": [
+          "oklch(15% 0.016 88)",
+          "oklch(25% 0.019 88)",
+          "oklch(35% 0.023 88)",
+          "oklch(45% 0.026 88)",
+          "oklch(55% 0.030 88)",
+          "oklch(65% 0.026 88)",
+          "oklch(80% 0.021 88)",
+          "oklch(95% 0.016 88)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Walnut Ink",
+        "tonalRamp": [
+          "oklch(15% 0.008 70)",
+          "oklch(25% 0.010 70)",
+          "oklch(35% 0.011 70)",
+          "oklch(45% 0.013 70)",
+          "oklch(55% 0.015 70)",
+          "oklch(65% 0.013 70)",
+          "oklch(80% 0.011 70)",
+          "oklch(95% 0.008 70)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Faded Ink",
+        "tonalRamp": [
+          "oklch(15% 0.013 75)",
+          "oklch(25% 0.016 75)",
+          "oklch(35% 0.019 75)",
+          "oklch(45% 0.022 75)",
+          "oklch(55% 0.025 75)",
+          "oklch(65% 0.022 75)",
+          "oklch(80% 0.018 75)",
+          "oklch(95% 0.013 75)"
+        ]
+      },
+      "pine": {
+        "role": "primary",
+        "displayName": "Field Pine",
+        "tonalRamp": [
+          "oklch(15% 0.021 160)",
+          "oklch(25% 0.026 160)",
+          "oklch(35% 0.031 160)",
+          "oklch(45% 0.035 160)",
+          "oklch(55% 0.040 160)",
+          "oklch(65% 0.035 160)",
+          "oklch(80% 0.028 160)",
+          "oklch(95% 0.021 160)"
+        ]
+      },
+      "rust": {
+        "role": "primary",
+        "displayName": "Margin Rust",
+        "tonalRamp": [
+          "oklch(15% 0.069 35)",
+          "oklch(25% 0.084 35)",
+          "oklch(35% 0.099 35)",
+          "oklch(45% 0.115 35)",
+          "oklch(55% 0.130 35)",
+          "oklch(65% 0.115 35)",
+          "oklch(80% 0.092 35)",
+          "oklch(95% 0.069 35)"
+        ]
+      },
+      "moss": {
+        "role": "secondary",
+        "displayName": "Lichen Moss",
+        "tonalRamp": [
+          "oklch(15% 0.042 125)",
+          "oklch(25% 0.052 125)",
+          "oklch(35% 0.061 125)",
+          "oklch(45% 0.071 125)",
+          "oklch(55% 0.080 125)",
+          "oklch(65% 0.071 125)",
+          "oklch(80% 0.056 125)",
+          "oklch(95% 0.042 125)"
+        ]
+      },
+      "slate": {
+        "role": "secondary",
+        "displayName": "Creek Slate",
+        "tonalRamp": [
+          "oklch(15% 0.032 240)",
+          "oklch(25% 0.039 240)",
+          "oklch(35% 0.046 240)",
+          "oklch(45% 0.053 240)",
+          "oklch(55% 0.060 240)",
+          "oklch(65% 0.053 240)",
+          "oklch(80% 0.042 240)",
+          "oklch(95% 0.032 240)"
+        ]
+      },
+      "ochre": {
+        "role": "secondary",
+        "displayName": "Prairie Ochre",
+        "tonalRamp": [
+          "oklch(15% 0.058 80)",
+          "oklch(25% 0.071 80)",
+          "oklch(35% 0.084 80)",
+          "oklch(45% 0.097 80)",
+          "oklch(55% 0.110 80)",
+          "oklch(65% 0.097 80)",
+          "oklch(80% 0.077 80)",
+          "oklch(95% 0.058 80)"
+        ]
+      },
+      "leather": {
+        "role": "neutral",
+        "displayName": "Saddle Leather",
+        "tonalRamp": [
+          "oklch(15% 0.013 55)",
+          "oklch(25% 0.016 55)",
+          "oklch(35% 0.019 55)",
+          "oklch(45% 0.022 55)",
+          "oklch(55% 0.025 55)",
+          "oklch(65% 0.022 55)",
+          "oklch(80% 0.018 55)",
+          "oklch(95% 0.013 55)"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Cream Thread",
+        "tonalRamp": [
+          "oklch(15% 0.021 85)",
+          "oklch(25% 0.026 85)",
+          "oklch(35% 0.031 85)",
+          "oklch(45% 0.035 85)",
+          "oklch(55% 0.040 85)",
+          "oklch(65% 0.035 85)",
+          "oklch(80% 0.028 85)",
+          "oklch(95% 0.021 85)"
+        ]
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Desk",
+        "tonalRamp": [
+          "oklch(15% 0.011 55)",
+          "oklch(25% 0.013 55)",
+          "oklch(35% 0.015 55)",
+          "oklch(45% 0.018 55)",
+          "oklch(55% 0.020 55)",
+          "oklch(65% 0.018 55)",
+          "oklch(80% 0.014 55)",
+          "oklch(95% 0.011 55)"
+        ]
+      },
+      "darkroom": {
+        "role": "neutral",
+        "displayName": "Darkroom",
+        "tonalRamp": [
+          "oklch(15% 0.005 70)",
+          "oklch(25% 0.006 70)",
+          "oklch(35% 0.008 70)",
+          "oklch(45% 0.009 70)",
+          "oklch(55% 0.010 70)",
+          "oklch(65% 0.009 70)",
+          "oklch(80% 0.007 70)",
+          "oklch(95% 0.005 70)"
+        ]
+      },
+      "tier-common": {
+        "role": "secondary",
+        "displayName": "Worn Graphite",
+        "tonalRamp": [
+          "oklch(15% 0.006 85)",
+          "oklch(25% 0.008 85)",
+          "oklch(35% 0.009 85)",
+          "oklch(45% 0.011 85)",
+          "oklch(55% 0.012 85)",
+          "oklch(65% 0.011 85)",
+          "oklch(80% 0.008 85)",
+          "oklch(95% 0.006 85)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display (handwriting)",
+        "purpose": "Page titles and the new-entry species name."
+      },
+      "headline": {
+        "displayName": "Headline (handwriting)",
+        "purpose": "Sheet titles, top guess, owner name."
+      },
+      "title": {
+        "displayName": "Title (handwriting)",
+        "purpose": "Card names, list entries, notes."
+      },
+      "body": {
+        "displayName": "Body (serif)",
+        "purpose": "Sentences; captions in italic Faded Ink."
+      },
+      "label": {
+        "displayName": "Label (typewriter)",
+        "purpose": "Controls, numbers, dates, section heads, stamps."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "TexDex on the cover plate only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "taped-print",
+        "value": "1px 2px 3px rgba(43, 38, 32, .18)",
+        "purpose": "Photos taped into cards and entries."
+      },
+      {
+        "name": "page-dim",
+        "value": "rgba(34, 26, 20, .55)",
+        "purpose": "Backdrop fill behind a bottom sheet (background, not box-shadow)."
+      },
+      {
+        "name": "camera-text-lift",
+        "value": "0 1px 6px rgba(0, 0, 0, .8)",
+        "purpose": "text-shadow for handwritten hints over the live camera only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press",
+        "value": "translateY(1px)",
+        "purpose": "Button :active feedback."
+      },
+      {
+        "name": "sheet-rise",
+        "value": "translateY(100%) → 0, .28s ease-out",
+        "purpose": "Bottom sheet entrance."
+      },
+      {
+        "name": "stamp-thump",
+        "value": "scale(2.4) → 1, .35s cubic-bezier(.2, 1.4, .4, 1), .45s delay",
+        "purpose": "New-entry stamp landing."
+      },
+      {
+        "name": "meter-fill",
+        "value": "width .6s ease",
+        "purpose": "Progress meters."
+      },
+      {
+        "name": "scan-dots",
+        "value": "opacity pulse 1.1s, .18s stagger",
+        "purpose": "Identification in progress."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone-max",
+        "value": "480px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Default outlined typewriter key on card stock.",
+      "html": "<button class=\"ds-btn\">Retake</button>",
+      "css": ".ds-btn { display:inline-flex; align-items:center; justify-content:center; padding:11px 16px 9px; font-family:'Special Elite','Courier New',monospace; font-size:15px; letter-spacing:.02em; color:var(--ink,#2b2620); background:var(--card,#f8f2e2); border:1.5px solid var(--ink,#2b2620); border-radius:3px; cursor:pointer; } .ds-btn:active { transform:translateY(1px); } .ds-btn:focus-visible { outline:2px solid var(--rust,#a3432a); outline-offset:2px; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action on a page, in Field Pine.",
+      "html": "<button class=\"ds-btn-primary\">Save to my Dex</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; padding:11px 16px 9px; font-family:'Special Elite','Courier New',monospace; font-size:15px; letter-spacing:.02em; color:var(--card,#f8f2e2); background:var(--pine,#2f4a3a); border:1.5px solid var(--pine,#2f4a3a); border-radius:3px; cursor:pointer; } .ds-btn-primary:active { transform:translateY(1px); } .ds-btn-primary:focus-visible { outline:2px solid var(--rust,#a3432a); outline-offset:2px; }"
+    },
+    {
+      "name": "Write-on Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A handwritten line to write on, not a box.",
+      "html": "<label class=\"ds-field\">Username<input class=\"ds-input\" placeholder=\"trail_walker\"></label>",
+      "css": ".ds-field { display:flex; flex-direction:column; gap:2px; font-family:'Special Elite','Courier New',monospace; font-size:12px; letter-spacing:.06em; color:var(--ink-soft,#6c6253); } .ds-input { font-family:Caveat,'Segoe Print',cursive; font-size:24px; color:var(--ink,#2b2620); padding:2px 2px 0; border:0; border-bottom:1.5px solid var(--ink,#2b2620); background:transparent; outline:none; border-radius:0; } .ds-input::placeholder { color:rgba(43,38,32,.3); } .ds-input:focus { border-bottom-color:var(--rust,#a3432a); }"
+    },
+    {
+      "name": "Index Tabs",
+      "kind": "chip",
+      "refersTo": "index-tab",
+      "description": "Region dividers sticking out of the journal; selected tab is inked.",
+      "html": "<div class=\"ds-strip\"><button class=\"ds-tab ds-on\"><i class=\"ds-sw\" style=\"--c:#c9a66b\"></i>Edwards Plateau <small>12</small></button><button class=\"ds-tab\"><i class=\"ds-sw\" style=\"--c:#7e9a6a\"></i>Piney Woods <small>8</small></button></div>",
+      "css": ".ds-strip { display:flex; gap:6px; } .ds-tab { display:flex; align-items:center; gap:7px; padding:8px 10px 6px; font-family:'Special Elite','Courier New',monospace; font-size:12.5px; white-space:nowrap; color:var(--ink,#2b2620); background:var(--card,#f8f2e2); border:1px solid var(--ink,#2b2620); border-bottom-width:2px; border-radius:3px 3px 0 0; cursor:pointer; } .ds-tab small { font-size:12px; color:var(--ink-soft,#6c6253); } .ds-sw { width:10px; height:10px; border:1px solid currentColor; background:var(--c); } .ds-tab.ds-on { background:var(--ink,#2b2620); color:var(--card,#f8f2e2); } .ds-tab.ds-on small { color:rgba(248,242,226,.65); } .ds-tab:focus-visible { outline:2px solid var(--rust,#a3432a); outline-offset:2px; }"
+    },
+    {
+      "name": "Tier Stamps",
+      "kind": "custom",
+      "refersTo": "tier-stamp",
+      "description": "Rarity as a crooked coloured ink stamp, one ink per tier.",
+      "html": "<div class=\"ds-tiers\"><span class=\"ds-tier\" style=\"--t:#6b665c\">Common</span><span class=\"ds-tier\" style=\"--t:#55683a\">Uncommon</span><span class=\"ds-tier\" style=\"--t:#3f6480\">Rare</span><span class=\"ds-tier\" style=\"--t:#a3432a\">Very rare</span></div>",
+      "css": ".ds-tiers { display:flex; gap:10px; flex-wrap:wrap; } .ds-tier { display:inline-block; font-family:'Special Elite','Courier New',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--t); border:1.5px solid var(--t); border-radius:2px; padding:3px 5px 1px; transform:rotate(-1.5deg); white-space:nowrap; }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tabbar",
+      "description": "The journal's leather spine with a stitched edge.",
+      "html": "<nav class=\"ds-tabbar\"><button class=\"ds-on\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/></svg><span>Catch</span></button><button><svg viewBox=\"0 0 24 24\"><path d=\"M4 5h7v14H4zM13 5h7v14h-7z\"/></svg><span>Dex</span></button><button><svg viewBox=\"0 0 24 24\"><path d=\"M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z\"/></svg><span>Map</span></button><button><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"9\" r=\"4\"/><path d=\"M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6\"/></svg><span>Profile</span></button></nav>",
+      "css": ".ds-tabbar { position:relative; height:62px; display:grid; grid-template-columns:repeat(4,1fr); background:var(--leather,#33271e); } .ds-tabbar::before { content:''; position:absolute; left:10px; right:10px; top:5px; border-top:1.5px dashed rgba(234,223,196,.3); } .ds-tabbar button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding-top:6px; border:0; background:none; cursor:pointer; color:rgba(234,223,196,.75); font-family:'Special Elite','Courier New',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; } .ds-tabbar svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; } .ds-tabbar button.ds-on { color:var(--cream,#eadfc4); } .ds-tabbar button.ds-on span { border-bottom:1.5px solid var(--ochre,#b0822a); } .ds-tabbar button:focus-visible { outline:2px solid var(--ochre,#b0822a); outline-offset:-4px; }"
+    },
+    {
+      "name": "Specimen Cards",
+      "kind": "card",
+      "refersTo": "specimen-card",
+      "description": "Dex entries: dashed pencil frame when not found, taped print when found.",
+      "html": "<div class=\"ds-grid\"><div class=\"ds-card\"><div class=\"ds-num\">No. 014 <i style=\"color:#3f6480\">Rare</i></div><div class=\"ds-art ds-photo\"><div class=\"ds-img\"></div></div><div class=\"ds-nm\">Golden-cheeked Warbler</div></div><div class=\"ds-card\"><div class=\"ds-num\">No. 015</div><div class=\"ds-art ds-blank\"><span class=\"ds-q\">?</span></div><div class=\"ds-nm ds-soft\">Not yet found</div></div></div>",
+      "css": ".ds-grid { display:grid; grid-template-columns:repeat(2,120px); gap:14px 10px; padding:12px; background-color: var(--paper, #efe6d0); } .ds-card { display:flex; flex-direction:column; gap:5px; } .ds-card:first-child { transform:rotate(-.7deg); } .ds-num { font-family:'Special Elite','Courier New',monospace; font-size:12px; color:var(--ink-soft,#6c6253); display:flex; justify-content:space-between; } .ds-num i { font-style:normal; } .ds-art { position:relative; aspect-ratio:1; display:grid; place-items:center; } .ds-blank { border:1.5px dashed rgba(43,38,32,.22); } .ds-q { position:absolute; right:5px; bottom:1px; font-family:Caveat,cursive; font-size:20px; color:rgba(43,38,32,.22); } .ds-photo { background:#fff; padding:4px; border:1px solid rgba(43,38,32,.3); box-shadow:1px 2px 3px rgba(43,38,32,.18); } .ds-photo::before { content:''; position:absolute; top:-7px; left:31%; width:38%; height:13px; background:rgba(201,174,132,.72); transform:rotate(-3deg); } .ds-img { width:100%; height:100%; background:linear-gradient(135deg,#8a9a6a,#5c6b45); } .ds-nm { font-family:Caveat,cursive; font-size:18.5px; line-height:1; color:var(--ink,#2b2620); } .ds-soft { color:var(--ink-soft,#6c6253); }"
+    },
+    {
+      "name": "Notes",
+      "kind": "custom",
+      "refersTo": "note",
+      "description": "Handwritten callouts with a coloured left rule: warn, shield, tip.",
+      "html": "<div class=\"ds-notes\"><p class=\"ds-note ds-warn\">Venomous: keep your distance.</p><p class=\"ds-note ds-shield\">Protected: shown only as a rough area.</p><p class=\"ds-note ds-tip\">Common here in November.</p></div>",
+      "css": ".ds-notes { padding:8px 12px; background-color: var(--paper, #efe6d0); } .ds-note { font-family:Caveat,cursive; font-size:21px; line-height:1.2; padding:4px 0 4px 12px; border-left:3px solid var(--t); margin:10px 0; } .ds-warn { --t:#a3432a; color:#a3432a; } .ds-shield { --t:#3f6480; color:#3f6480; } .ds-tip { --t:#55683a; color:#2f4a3a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Scrapbook Expedition",
+    "overview": "TexDex looks like the notebook a family brings home from a trip outdoors: grainy paper, faint ruled lines, a red margin line, photos taped in, animal names written by hand, and rarity marked with a coloured ink stamp. Every screen is a page in that journal. The tab bar is the leather spine, the Dex region tabs are index dividers sticking out of the edge, a bottom sheet is a loose page laid on top, and a new catch is a fresh entry that gets stamped.\n\nThe mood is warm, curious, and a bit handmade. Three voices do all the work: **handwriting** for names and the user's own words, a **typewriter** for labels, numbers, and system facts, and a **book serif** for reading text. Colour comes from inks and natural pigments (pine, rust, moss, slate, ochre) on paper. The code states its anti-references directly: no glows and no gradients on the paper surfaces.\n\nLayout is one phone-width page (max 480px) with dense content and generous margins. Imperfection is deliberate but controlled: decorations tilt, controls don't.",
+    "keyCharacteristics": [
+      "Paper surfaces with procedural grain, ruled lines, and a red margin line",
+      "Three-font system: Caveat handwriting, Special Elite typewriter, Lora serif",
+      "Ink-and-pigment palette; rarity shown as coloured ink stamps",
+      "Physical scrapbook metaphors: tape, photo corners, stamps, index tabs, loose pages",
+      "Slight hand-placed tilt on decorative pieces only",
+      "Layered loose pages for depth"
+    ],
+    "rules": [
+      {
+        "name": "The Tier Ink Rule",
+        "section": "colors",
+        "body": "Rarity always uses the same four inks, in order: Worn Graphite (common) → Lichen Moss (uncommon) → Creek Slate (rare) → Margin Rust (very rare). Tier colour comes from `data-tier` setting `--t`. Never pick a tier colour by hand."
+      },
+      {
+        "name": "The Red Pen Rule",
+        "section": "colors",
+        "body": "Rust means \"look here\": attention, errors, the user's own marks, and the very-rare tier. Don't use it for decoration."
+      },
+      {
+        "name": "The Three Voices Rule",
+        "section": "typography",
+        "body": "Every piece of text picks one voice by what it is. Names and the user's notes are handwriting, facts, numbers and controls are typewriter, sentences are serif. Don't put a sentence in Caveat or a number in Lora."
+      },
+      {
+        "name": "The No Thin Hand Rule",
+        "section": "typography",
+        "body": "Caveat is used at 18px or larger. Below that, switch to Special Elite."
+      },
+      {
+        "name": "The Paper Stack Rule",
+        "section": "elevation",
+        "body": "New layers are new sheets of paper: Bond Card fill, a 1–2px ink edge, and at most a small warm shadow like the taped print. Don't use floating glass, blur, glows, or large soft drop shadows."
+      },
+      {
+        "name": "The Decor Tilts Rule",
+        "section": "shapes",
+        "body": "Decorative paper tilts by small amounts (−9° to +7°, usually under 2°): taped photos, stamps, slips, the map sheet, specimen cards, badges and recent entries. Controls never tilt: buttons, inputs, index tabs, the tab bar, list rows, and running text."
+      },
+      {
+        "name": "The 12px Floor Rule",
+        "section": "typography",
+        "body": "Functional text (labels, numbers, stamps, tab names, map keys) is never smaller than 12px. The cover's \"vol. 1\" plate (11px) is the only decorative exception."
+      }
+    ],
+    "dos": [
+      "**Do** use the tokens on `:root` in `app/static/app.css` (`--paper`, `--ink`, `--rust`, …). Never hard-code a new hex for something an existing ink already covers.",
+      "**Do** pick fonts by the Three Voices Rule: Caveat for names and notes, Special Elite for labels and numbers, Lora for sentences.",
+      "**Do** mark rarity only with the tier stamp and the four tier inks, set through `data-tier`.",
+      "**Do** build new surfaces as paper: Parchment or Bond Card, the grain image, and ink borders.",
+      "**Do** use dashed pencil borders for empty or not-yet states, and solid or doubled ink once something is earned.",
+      "**Do** keep tilts small and only on decorative paper. Keep controls straight.",
+      "**Do** honour `prefers-reduced-motion`; the global rule already cuts animations to near zero.",
+      "**Do** give every control a visible keyboard focus ring: 2px Margin Rust, offset 2px (Prairie Ochre on leather and over the camera)."
+    ],
+    "donts": [
+      "**Don't** add glows or gradients to paper surfaces. The only gradients are the grain, the ruled lines and margin, and the shades over the camera view.",
+      "**Don't** use large, soft, or black drop shadows, or blur and glass effects. Depth is stacked paper.",
+      "**Don't** tilt buttons, inputs, tabs, list rows, or running text.",
+      "**Don't** set Caveat below 18px.",
+      "**Don't** use Rust for decoration. It means attention, the user's own marks, or very rare.",
+      "**Don't** show a protected species' pin without its blurred rough-area halo."
+    ]
+  }
+}
