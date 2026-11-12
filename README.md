@@ -4,11 +4,12 @@ Photograph a wild animal in Texas, get an AI identification (BioCLIP 2) boosted 
 
 ## What the app does
 
-Three tabs along the bottom:
+Styled as a naturalist's field journal. Four tabs along the bottom:
 
-1. **Catch** (camera icon). Opens the rear camera. Take a photo, the app checks it is usable (not blurry, too dark, or too far away, and says why in plain words if it is), then shows the model's top 3 guesses. You confirm one and it is saved.
-2. **Dex** (book icon). A map of Texas split into the 12 EPA Level III ecoregions plus Gulf waters. Pick a region, filter by animal group (birds, mammals, reptiles, amphibians, fish, sharks and rays). Each animal is a card: your photo if you have caught it, a silhouette if not. With no filters it shows every species from #001.
-3. **Profile**. Level, XP, badges, progress per animal group, recent catches.
+1. **Catch** (camera icon). Opens the rear camera. Live photos only: there is no option to pick a photo from the camera roll. The app checks the photo is usable (not blurry, too dark, or too far away, and says why in plain words if it is), then shows the model's top 3 guesses. You confirm one and it is saved.
+2. **Dex** (book icon). Tabs for the 12 EPA Level III ecoregions plus Gulf waters, then a filter by animal group (birds, mammals, reptiles, amphibians, fish, sharks and rays). Each animal is a card: your photo if you have caught it, a faint sketch if not. With no filters it shows every species from No. 001.
+3. **Map**. Texas drawn by ecoregion with a pin for every photo that had a location. Tap a region to zoom in and list the photos taken there. The pin position is the phone's GPS reading at the moment the photo was taken. Protected species are only ever pinned to a rough 25 km area.
+4. **Profile**. Level, XP, stamps (badges), progress per animal group, latest entries.
 
 ## Run it
 
