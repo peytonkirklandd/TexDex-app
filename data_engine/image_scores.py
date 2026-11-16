@@ -29,8 +29,10 @@ amphibians and fish are all just rows in the species list.
 """
 from __future__ import annotations
 
+import hashlib
 import os
 from functools import lru_cache
+from pathlib import Path
 
 BIOCLIP_MODEL = "hf-hub:imageomics/bioclip-2"
 
@@ -68,23 +70,40 @@ def _load_bioclip():
     return model, preprocess, open_clip.get_tokenizer(BIOCLIP_MODEL)
 
 
+# Where finished text embeddings are kept between runs (data/ is git-ignored).
+_CACHE_DIR = Path(__file__).resolve().parent.parent / "data" / "cache"
+
+
 # The species sentences never change between photos, so their embeddings are
-# worked out once and reused. The key is the tuple of sentences.
+# worked out once and reused. With the full Texas list (over a thousand
+# species) that first pass takes minutes on a laptop, so the result is also
+# saved to disk. The file name includes a fingerprint of the sentences and
+# the model name: change the species list or the wording and a new file is
+# made, so a stale one can never be used by mistake.
 @lru_cache(maxsize=4)
 def _text_embeddings(prompts: tuple):
     import torch
 
+    text = "|".join((BIOCLIP_MODEL,) + prompts)
+    fingerprint = hashlib.sha256(text.encode()).hexdigest()[:16]
+    cache_file = _CACHE_DIR / f"text_embeddings_{fingerprint}.pt"
+    if cache_file.is_file():
+        return torch.load(cache_file, weights_only=True)
+
     model, _preprocess, tokenizer = _load_bioclip()
     chunks = []
     with torch.no_grad():  # no_grad: skip training bookkeeping, saves memory
-        # In batches so a list of a few thousand species does not need all
-        # its memory at once.
-        for start in range(0, len(prompts), 256):
-            features = model.encode_text(tokenizer(list(prompts[start : start + 256])))
+        # In small batches so a list of a few thousand species does not need
+        # all its memory at once.
+        for start in range(0, len(prompts), 64):
+            features = model.encode_text(tokenizer(list(prompts[start : start + 64])))
             # Scale each embedding to length 1, so the dot product below
             # measures direction only (cosine similarity).
             chunks.append(features / features.norm(dim=-1, keepdim=True))
-    return torch.cat(chunks)
+    embeddings = torch.cat(chunks)
+    _CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    torch.save(embeddings, cache_file)
+    return embeddings
 
 
 def bioclip_image_scores(photo_path, species_rows: list[dict]) -> dict:
