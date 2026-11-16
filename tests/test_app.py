@@ -172,6 +172,45 @@ def test_collection_is_computed_from_catches(dex):
     assert deer["photo_id"] == 2  # the latest photo is the one shown
 
 
+def test_near_you_this_season_only_lists_species_recorded_then(dex):
+    # Whooping cranes winter on the coast (region 34) and are gone by summer.
+    winter = {e["species_id"] for e in dex.view([], region="34", season="winter")["entries"]}
+    summer = {e["species_id"] for e in dex.view([], region="34", season="summer")["entries"]}
+    assert "sp_0005" in winter and "sp_0005" not in summer
+    # Every species listed really has a record for that region and season.
+    for sid in summer:
+        assert "summer" in dex.rarity[(sid, "34")]
+
+
+def test_near_you_lists_the_most_common_first(dex):
+    view = dex.view([], region="30", season="spring")
+    order = ["common", "uncommon", "rare", "very_rare"]
+    ranks = [order.index(e["tier"]) for e in view["entries"]]
+    assert ranks == sorted(ranks)
+    assert view["season"] == "spring"
+
+
+def test_season_needs_a_region_and_a_real_season_name(dex):
+    # A season with no region, or a made-up season, is ignored rather than
+    # silently emptying the Dex.
+    assert len(dex.view([], season="winter")["entries"]) == 84
+    assert dex.view([], region="30", season="monsoon")["season"] is None
+
+
+def test_group_counts_match_the_near_you_list(dex):
+    view = dex.view([], region="30", season="fall")
+    for group in view["groups"]:
+        shown = dex.view([], region="30", group=group["key"], season="fall")["entries"]
+        assert group["total"] == len(shown)
+
+
+def test_dex_api_understands_season_now(client):
+    sign_up(client)
+    data = client.get("/api/dex?region=30&season=now").get_json()
+    assert data["season"] in {"spring", "summer", "fall", "winter"}
+    assert data["entries"]
+
+
 def test_tier_falls_back_from_season_to_region_to_statewide(dex):
     assert dex.tier("sp_0005", "34", "winter") == "very_rare"   # whooping crane
     assert dex.tier("sp_0005", "34", "summer") == "very_rare"   # not there in summer: region's tier

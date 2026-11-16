@@ -11,7 +11,10 @@ const SEASONS = [["spring", "Sp", "Spring"], ["summer", "Su", "Summer"], ["fall"
 
 const state = {
   tab: "camera", stream: null, coords: null, busy: false, lastPhotoUrl: null, authMode: "signup",
-  dex: { region: null, group: null },
+  // Dex scope: "near" (your region, this season), "region" (one region you
+  // picked) or "all". null means "near if we know where you are, else all".
+  here: null, season: null,
+  dex: { scope: null, region: null, group: null },
   map: { data: null, regions: [], region: null, pin: null, view: null },
 };
 
@@ -268,6 +271,10 @@ function watchLocation() {
     const result = await api(`/api/region?lat=${state.coords.lat}&lon=${state.coords.lon}`);
     const region = result.data.region;
     $("loc-chip").textContent = region ? region.name : "Outside Texas";
+    const firstFix = !state.here && region;
+    state.here = region || null;
+    // The Dex opens on "near you" once we know where you are.
+    if (firstFix && state.tab === "dex" && state.dex.scope === null) loadDex();
   }, () => {
     state.coords = null;
     $("loc-chip").textContent = "Location off: no map pin";
@@ -506,34 +513,56 @@ function wireStrip(stripId, attribute, onPick) {
 
 /* ---------- tab 2: the Dex ---------- */
 
-async function loadDex() {
-  const query = new URLSearchParams();
-  if (state.dex.region) query.set("region", state.dex.region);
-  if (state.dex.group) query.set("group", state.dex.group);
-  const [dex, status] = await Promise.all([api("/api/dex?" + query), api("/api/status")]);
-  if (!dex.ok) return;
-  $("demo-note").classList.toggle("hidden", !status.data.demo_data);
-  renderDex(dex.data);
+// Which list the Dex shows. "Near you" needs a known region; without one
+// the Dex falls back to all of Texas.
+function dexScope() {
+  const d = state.dex;
+  if (d.scope === "region" && d.region) return "region";
+  if (d.scope === "all") return "all";
+  return state.here ? "near" : "all";
 }
 
-function renderDex(data) {
+async function loadDex() {
+  const d = state.dex, scope = dexScope();
+  const query = new URLSearchParams();
+  if (scope === "near") { query.set("region", state.here.code); query.set("season", "now"); }
+  if (scope === "region") query.set("region", d.region);
+  if (d.group) query.set("group", d.group);
+  const [dex, status] = await Promise.all([api("/api/dex?" + query), api("/api/status")]);
+  if (!dex.ok) return;
+  if (dex.data.season) state.season = dex.data.season;
+  $("demo-note").classList.toggle("hidden", !status.data.demo_data);
+  renderDex(dex.data, scope);
+}
+
+function renderDex(data, scope) {
   const d = state.dex;
   $("dex-tally").innerHTML = `<b>${data.caught}</b> / ${data.total}<br>found`;
-  $("dex-sub").textContent = "Every animal, region by region";
+  $("dex-sub").textContent = "Every Texas animal in the journal";
 
-  const region = data.regions.find((r) => r.code === d.region);
+  const code = scope === "near" ? state.here.code : scope === "region" ? d.region : null;
+  const region = data.regions.find((r) => r.code === code);
   const found = data.entries.filter((e) => e.caught).length;
-  $("region-name").textContent = region ? region.name : "All of Texas";
-  // The tally above already covers the whole Dex, so this line only adds a
-  // count when a filter narrows the list.
-  const filtered = Boolean(d.region || d.group);
-  const count = `You've found ${found} of the ${data.entries.length} shown here.`;
-  $("region-blurb").textContent = region ? `${region.blurb}. ${count}`
-    : filtered ? count : "Tap any animal to see where and when it lives.";
+  const shown = data.entries.length;
 
-  $("region-tabs").innerHTML = regionTabsHtml(data.regions, d.region, (r) => `${r.caught}/${r.total}`);
-  // Tapping the tab that is already selected clears that filter.
-  wireStrip("region-tabs", "region", (code) => { d.region = code === d.region ? null : code; loadDex(); });
+  // One button says where the list is looking; the full region list lives
+  // behind it instead of in a 14-tab strip.
+  $("scope-btn").innerHTML = `<span class="scope-label">${scope === "near" ? "Near you" : "Showing"}</span>
+    ${region ? `<i class="sw" style="--c:${esc(region.color)}"></i>${esc(region.name)}` : "All of Texas"}
+    <span class="scope-change">Change</span>`;
+
+  if (scope === "near") {
+    $("region-name").textContent = `Likely near you this ${data.season}`;
+    $("region-blurb").textContent = `${shown} animals are recorded in the ${region ? region.name : "area"} in ${data.season}, most common first. You've found ${found}.`;
+  } else if (scope === "region") {
+    $("region-name").textContent = region ? region.name : "Region";
+    $("region-blurb").textContent = `${region && region.blurb ? region.blurb + ". " : ""}You've found ${found} of the ${shown} here.`;
+  } else {
+    $("region-name").textContent = "All of Texas";
+    $("region-blurb").textContent = d.group ? `You've found ${found} of the ${shown} shown here.`
+      : state.here ? "Tap any animal to see where and when it lives."
+      : "Turn on location to see what lives near you this season.";
+  }
 
   $("group-tabs").innerHTML =
     `<button class="tab${d.group ? "" : " on"}" data-group="">All animals</button>` +
@@ -541,15 +570,39 @@ function renderDex(data) {
       ${esc(g.label)} <small>${g.caught}/${g.total}</small></button>`).join("");
   wireStrip("group-tabs", "group", (key) => { d.group = key === d.group ? null : key; loadDex(); });
 
-  $("dex-grid").innerHTML = data.entries.length ? data.entries.map((e) => `
+  $("dex-grid").innerHTML = shown ? data.entries.map((e) => `
     <button class="card${e.caught ? " caught" : ""}" data-tier="${esc(e.tier)}" data-species="${esc(e.species_id)}">
       <span class="num"><span>${dexNumber(e.number)}</span><i>${TIER_LABEL[e.tier] || ""}</i></span>
       ${artHtml(e, { photoUrl: e.caught ? "/api/photos/" + e.photo_id : null, blank: true })}
       <span class="nm">${esc(e.common_name)}</span>
     </button>`).join("")
-    : '<p class="empty">No animals match this region and group. Try All animals, or another region.</p>';
+    : `<p class="empty">${d.group ? "None of this group here. Try All animals." : "Nothing recorded here yet. Try All of Texas."}</p>`;
   $("dex-grid").querySelectorAll(".card").forEach((c) => c.addEventListener("click", () => openSpecies(c.dataset.species)));
+  renderDex.regions = data.regions;
 }
+
+// The region picker: "near you", all of Texas, then every region by name.
+function openScopePicker() {
+  const d = state.dex, scope = dexScope(), regions = renderDex.regions || [];
+  const row = (attrs, on, body) => `<button type="button" class="pick-row${on ? " on" : ""}" ${attrs}>${body}</button>`;
+  openSheet(`
+    <h3 class="sheet-title">Where to look</h3>
+    <p class="sheet-sub">Pick a region of Texas, or see everything.</p>
+    ${state.here
+      ? row('data-scope="near"', scope === "near", `<strong>Near you</strong><small>${esc(state.here.name)}, this season</small>`)
+      : row('data-scope="near" disabled', false, `<strong>Near you</strong><small>Turn on location to use this</small>`)}
+    ${row('data-scope="all"', scope === "all", `<strong>All of Texas</strong><small>Every animal in the journal</small>`)}
+    <p class="sec">Regions</p>
+    ${regions.map((r) => row(`data-scope="region" data-region="${esc(r.code)}"`, scope === "region" && d.region === r.code,
+      `<i class="sw" style="--c:${esc(r.color)}"></i><strong>${esc(r.name)}</strong><small>${r.blurb ? esc(r.blurb) + " · " : ""}${r.caught} of ${r.total} found</small>`)).join("")}`);
+  $("sheet").querySelectorAll(".pick-row:not([disabled])").forEach((b) => b.addEventListener("click", () => {
+    d.scope = b.dataset.scope;
+    d.region = b.dataset.region || null;
+    closeSheet();
+    loadDex();
+  }));
+}
+$("scope-btn").addEventListener("click", openScopePicker);
 
 async function openSpecies(speciesId) {
   const result = await api("/api/species/" + encodeURIComponent(speciesId));
@@ -561,12 +614,16 @@ async function openSpecies(speciesId) {
   const cell = ([key, , name]) => (tier) => tier
     ? `<i data-tier="${esc(tier)}" role="img" aria-label="${name}: ${TIER_LABEL[tier]}">${TIER_SHORT[tier]}</i>`
     : `<i role="img" aria-label="${name}: no records">–</i>`;
-  const where = sp.regions.map((r) => `
-    <div class="where" style="--c:${esc(r.color)}"><i class="sw"></i><span>${esc(r.name)}</span>
+  // Your own region goes first, and this season's column is marked, so the
+  // answer to "could I see it here, now?" is the first thing you read.
+  const hereCode = state.here ? state.here.code : null;
+  const regions = [...sp.regions].sort((a, b) => (b.code === hereCode) - (a.code === hereCode));
+  const where = regions.map((r) => `
+    <div class="where${r.code === hereCode ? " here" : ""}" style="--c:${esc(r.color)}"><i class="sw"></i><span>${esc(r.name)}${r.code === hereCode ? " <small>(near you)</small>" : ""}</span>
       <div class="seasons">${SEASONS.map((s) => cell(s)(r.seasons[s[0]])).join("")}</div>
     </div>`).join("");
   const seasonHead = `<div class="where where-head" aria-hidden="true"><i class="sw"></i><span></span>
-    <div class="seasons">${SEASONS.map(([, short]) => `<i>${short}</i>`).join("")}</div></div>`;
+    <div class="seasons">${SEASONS.map(([key, short]) => `<i${key === state.season ? ' class="now"' : ""}>${short}</i>`).join("")}</div></div>`;
   const seasonKey = `<p class="season-key">${Object.keys(TIER_LABEL).map((t) =>
     `<span><i data-tier="${t}" aria-hidden="true">${TIER_SHORT[t]}</i>${TIER_LABEL[t]}</span>`).join("")}
     <span><i aria-hidden="true">–</i>No records</span></p>`;

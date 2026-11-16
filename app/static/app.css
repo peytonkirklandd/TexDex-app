@@ -189,6 +189,22 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .tab.on small { color: rgba(248, 242, 226, .65); }
 .tab.on .sw { border-color: var(--card); }
 .caption { margin: 12px 0 14px; }
+/* The Dex's "where to look" button: one index card instead of a strip of
+   14 region tabs. It opens the region list. */
+.scope-btn { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 10px 12px 8px; text-align: left;
+  font-family: var(--type); font-size: 14px; background: var(--card); border: 1px solid var(--ink); border-bottom-width: 2px; border-radius: 3px; }
+.scope-btn .sw { width: 10px; height: 10px; border: 1px solid var(--ink); background: var(--c); flex: none; }
+.scope-label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.scope-change { margin-left: auto; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; color: var(--ink-soft); }
+/* Rows in the region picker sheet. */
+.pick-row { width: 100%; min-height: 52px; display: flex; flex-wrap: wrap; align-items: center; column-gap: 10px; row-gap: 2px; padding: 10px 8px;
+  text-align: left; border-top: 1px solid var(--pencil); }
+.pick-row strong { font-family: var(--hand); font-size: 22px; font-weight: 700; line-height: 1; }
+.pick-row small { flex-basis: 100%; font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
+.pick-row .sw { width: 10px; height: 10px; border: 1px solid var(--ink); background: var(--c); flex: none; }
+.pick-row .sw + strong + small { padding-left: 20px; }
+.pick-row.on { background: var(--ochre-wash); box-shadow: inset 0 0 0 1.5px var(--rust); }
+.pick-row:disabled { opacity: .55; cursor: default; }
 .caption h3 { font-family: var(--hand); font-weight: 700; font-size: 28px; line-height: 1; }
 .caption p { font-size: 13.5px; font-style: italic; color: var(--ink-soft); margin-top: 3px; line-height: 1.35; }
 
@@ -319,6 +335,10 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .where-head { border-bottom: 0; padding-bottom: 0; }
 .where-head .sw { visibility: hidden; }
 .where-head .seasons i { border-color: transparent; }
+/* This season's column is underlined in red pen; your region's row is tinted. */
+.where-head .seasons i.now { color: var(--ink); border-bottom: 2px solid var(--rust); }
+.where.here { background: var(--ochre-wash); }
+.where small { font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
 /* The key sits right above the cells it explains. */
 .season-key { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--type); font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
 .season-key span { display: flex; align-items: center; gap: 6px; }

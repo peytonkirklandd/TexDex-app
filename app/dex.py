@@ -134,13 +134,20 @@ class Dex:
 
     # ---------- the Dex page ----------
 
-    def view(self, catches: list[dict], region: str | None = None, group: str | None = None) -> dict:
-        """Everything the Dex tab needs for one user and one pair of filters.
+    def view(self, catches: list[dict], region: str | None = None, group: str | None = None,
+             season: str | None = None) -> dict:
+        """Everything the Dex tab needs for one user and one set of filters.
 
         catches: that user's rows from the catches table.
         region / group: None means "no filter". With no filters at all the
         result is every species, starting from number 1.
+        season: only used together with a region. It narrows the list to
+        species recorded in that region in that season ("near you this
+        fall") and sorts the most common first, because those are the ones
+        the user is most likely to actually see.
         """
+        if not region or season not in SEASONS:
+            season = None
         # Collection = which species appear in the catches. Keep each
         # species' first catch (for the date) and latest catch (for the photo).
         caught: dict[str, dict] = {}
@@ -152,16 +159,24 @@ class Dex:
         def in_region(sid, code):
             return (sid, code) in self.rarity
 
+        def in_scope(sid):
+            """Inside the region (and season) filter, ignoring the group."""
+            if not region:
+                return True
+            if season:
+                return season in self.rarity.get((sid, region), {})
+            return in_region(sid, region)
+
         entries = []
         for sid, sp in self.species.items():
-            if region and not in_region(sid, region):
+            if not in_scope(sid):
                 continue
             if group and sp["group"] != group:
                 continue
             mine = caught.get(sid)
             entries.append({
                 **sp,
-                "tier": self.tier(sid, region),
+                "tier": self.tier(sid, region, season),
                 "caught": mine is not None,
                 "catch_count": mine["count"] if mine else 0,
                 "first_caught": mine["first"] if mine else None,
@@ -178,9 +193,13 @@ class Dex:
             region_tabs.append({**region_info(code), "total": len(ids),
                                 "caught": sum(1 for sid in ids if sid in caught)})
 
+        if season:
+            # Most common first; Dex number breaks ties so the order is stable.
+            entries.sort(key=lambda e: (TIER_ORDER.index(e["tier"]), e["number"]))
+
         group_tabs = {}
         for sid, sp in self.species.items():
-            if region and not in_region(sid, region):
+            if not in_scope(sid):
                 continue
             tab = group_tabs.setdefault(sp["group"], {
                 "key": sp["group"], "label": sp["group_label"],
@@ -194,6 +213,7 @@ class Dex:
             "entries": entries,
             "regions": region_tabs,
             "groups": ordered,
+            "season": season,
             "total": len(self.species),
             "caught": sum(1 for sid in self.species if sid in caught),
         }
