@@ -1,2 +1,11 @@
 pytest>=8
 # Add packages as each half needs them (Supabase client, BioCLIP deps, web framework, etc.)
+
+# --- Person A: BioCLIP 2 (only needed to score real photos; tests run without these) ---
+# Kept below 4 because open_clip 4.x needs a package (tiktoken) that has to be
+# compiled on Windows ARM laptops. 3.3.0 is the version we tested.
+open_clip_torch>=3.3,<4
+pillow>=10
+# torch and torchvision come in with open_clip_torch. On a Windows ARM laptop
+# install them first with:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
