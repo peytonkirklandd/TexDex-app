@@ -36,7 +36,7 @@ Both of us will be quizzed on the whole project (Dec 10 or 12), so:
 - Supabase (auth + Postgres with row-level security)
 - BioCLIP 2 for identification
 - Deployment: free Hugging Face Space (B confirms BioCLIP 2 fits during setup)
-- Web framework: **TBD in setup week (Nov 12–15)**. Update this line once decided.
+- Web framework: **Flask** (Python server in `app/server.py`, plain HTML/CSS/JavaScript front end in `app/static/`). Local storage is SQLite until the Supabase project exists.
 
 ## Scope guardrails
 Cut list (do NOT build): this-week forecast, zoo/aquarium detection, iNaturalist export, leaderboards/social, native mobile apps, training our own model.

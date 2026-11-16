@@ -1,0 +1,85 @@
+species_id,scientific_name,common_name,family,animal_class,icon,protected,venomous,regions,tier,seasons
+sp_0001,Mimus polyglottos,Northern Mockingbird,Mimidae,Aves,🐦,no,no,ALL,common,all
+sp_0002,Crotalus atrox,Western Diamondback Rattlesnake,Viperidae,Squamata,🐍,no,yes,WEST;PLAINS;CENTRAL;SOUTH,uncommon,spring;summer;fall
+sp_0003,Dasypus novemcinctus,Nine-banded Armadillo,Dasypodidae,Mammalia,🦔,no,no,CENTRAL;EAST;SOUTH,common,all
+sp_0004,Phrynosoma cornutum,Texas Horned Lizard,Phrynosomatidae,Squamata,🦎,yes,no,WEST;PLAINS;30;31,rare,spring;summer
+sp_0005,Grus americana,Whooping Crane,Gruidae,Aves,🦩,yes,no,34;GULF,very_rare,fall;winter
+sp_0006,Leopardus pardalis,Ocelot,Felidae,Mammalia,🐆,yes,no,31;34,very_rare,all
+sp_0007,Odocoileus virginianus,White-tailed Deer,Cervidae,Mammalia,🦌,no,no,ALL,common,all
+sp_0008,Cardinalis cardinalis,Northern Cardinal,Cardinalidae,Aves,🐦,no,no,CENTRAL;EAST;SOUTH,common,all
+sp_0009,Tyrannus forficatus,Scissor-tailed Flycatcher,Tyrannidae,Aves,🐦,no,no,PLAINS;CENTRAL;SOUTH,common,spring;summer
+sp_0010,Geococcyx californianus,Greater Roadrunner,Cuculidae,Aves,🐦,no,no,WEST;PLAINS;CENTRAL;31,uncommon,all
+sp_0011,Buteo jamaicensis,Red-tailed Hawk,Accipitridae,Aves,🦅,no,no,ALL,common,all
+sp_0012,Cathartes aura,Turkey Vulture,Cathartidae,Aves,🦅,no,no,ALL,common,all
+sp_0013,Ardea herodias,Great Blue Heron,Ardeidae,Aves,🦩,no,no,ALL;GULF,uncommon,all
+sp_0014,Platalea ajaja,Roseate Spoonbill,Threskiornithidae,Aves,🦩,no,no,34;GULF,uncommon,all
+sp_0015,Pelecanus occidentalis,Brown Pelican,Pelecanidae,Aves,🦆,no,no,34;GULF,common,all
+sp_0016,Setophaga chrysoparia,Golden-cheeked Warbler,Parulidae,Aves,🐦,yes,no,29;30,very_rare,spring;summer
+sp_0017,Vireo atricapilla,Black-capped Vireo,Vireonidae,Aves,🐦,no,no,29;30,rare,spring;summer
+sp_0018,Bubo virginianus,Great Horned Owl,Strigidae,Aves,🦉,no,no,ALL,uncommon,all
+sp_0019,Meleagris gallopavo,Wild Turkey,Phasianidae,Aves,🦃,no,no,27;29;30;31;33,uncommon,all
+sp_0020,Archilochus alexandri,Black-chinned Hummingbird,Trochilidae,Aves,🐦,no,no,24;30;31,uncommon,spring;summer
+sp_0021,Caracara plancus,Crested Caracara,Falconidae,Aves,🦅,no,no,31;33;34,uncommon,all
+sp_0022,Cyanocorax yncas,Green Jay,Corvidae,Aves,🐦,no,no,31;34,uncommon,all
+sp_0023,Dendrocygna autumnalis,Black-bellied Whistling-Duck,Anatidae,Aves,🦆,no,no,31;32;33;34,common,all
+sp_0024,Haliaeetus leucocephalus,Bald Eagle,Accipitridae,Aves,🦅,no,no,33;34;35,rare,fall;winter;spring
+sp_0025,Tympanuchus pallidicinctus,Lesser Prairie-Chicken,Phasianidae,Aves,🦃,yes,no,25;26,very_rare,all
+sp_0026,Odocoileus hemionus,Mule Deer,Cervidae,Mammalia,🦌,no,no,WEST;25;26,uncommon,all
+sp_0027,Antilocapra americana,Pronghorn,Antilocapridae,Mammalia,🦌,no,no,24;25;26,rare,all
+sp_0028,Pecari tajacu,Collared Peccary,Tayassuidae,Mammalia,🐗,no,no,24;30;31,uncommon,all
+sp_0029,Canis latrans,Coyote,Canidae,Mammalia,🐺,no,no,ALL,uncommon,all
+sp_0030,Lynx rufus,Bobcat,Felidae,Mammalia,🐆,no,no,ALL,rare,all
+sp_0031,Puma concolor,Mountain Lion,Felidae,Mammalia,🐆,no,no,23;24;31,very_rare,all
+sp_0032,Procyon lotor,Raccoon,Procyonidae,Mammalia,🦝,no,no,ALL,common,all
+sp_0033,Didelphis virginiana,Virginia Opossum,Didelphidae,Mammalia,🐀,no,no,CENTRAL;EAST;SOUTH,common,all
+sp_0034,Sciurus niger,Eastern Fox Squirrel,Sciuridae,Mammalia,🐿️,no,no,27;CENTRAL;EAST,common,all
+sp_0035,Cynomys ludovicianus,Black-tailed Prairie Dog,Sciuridae,Mammalia,🐿️,no,no,25;26,uncommon,all
+sp_0036,Tadarida brasiliensis,Mexican Free-tailed Bat,Molossidae,Mammalia,🦇,no,no,24;30;31;32,common,spring;summer;fall
+sp_0037,Lepus californicus,Black-tailed Jackrabbit,Leporidae,Mammalia,🐇,no,no,WEST;PLAINS;30;31,common,all
+sp_0038,Ursus americanus,American Black Bear,Ursidae,Mammalia,🐻,yes,no,23;24;35,very_rare,spring;summer;fall
+sp_0039,Lontra canadensis,North American River Otter,Mustelidae,Mammalia,🦦,no,no,33;34;35,rare,all
+sp_0040,Tursiops truncatus,Common Bottlenose Dolphin,Delphinidae,Mammalia,🐬,no,no,GULF,common,all
+sp_0041,Sus scrofa,Feral Hog,Suidae,Mammalia,🐗,no,no,ALL,common,all
+sp_0042,Agkistrodon piscivorus,Northern Cottonmouth,Viperidae,Squamata,🐍,no,yes,32;EAST,uncommon,spring;summer;fall
+sp_0043,Agkistrodon laticinctus,Broad-banded Copperhead,Viperidae,Squamata,🐍,no,yes,CENTRAL;EAST,uncommon,spring;summer;fall
+sp_0044,Micrurus tener,Texas Coralsnake,Elapidae,Squamata,🐍,no,yes,CENTRAL;SOUTH;35,rare,spring;summer;fall
+sp_0045,Pantherophis obsoletus,Western Ratsnake,Colubridae,Squamata,🐍,no,no,CENTRAL;EAST,common,spring;summer;fall
+sp_0046,Masticophis flagellum,Coachwhip,Colubridae,Squamata,🐍,no,no,ALL,uncommon,spring;summer;fall
+sp_0047,Anolis carolinensis,Green Anole,Dactyloidae,Squamata,🦎,no,no,CENTRAL;EAST,common,all
+sp_0048,Sceloporus olivaceus,Texas Spiny Lizard,Phrynosomatidae,Squamata,🦎,no,no,CENTRAL;31,common,spring;summer;fall
+sp_0049,Crotaphytus collaris,Eastern Collared Lizard,Crotaphytidae,Squamata,🦎,no,no,WEST;PLAINS;30,uncommon,spring;summer
+sp_0050,Alligator mississippiensis,American Alligator,Alligatoridae,Crocodylia,🐊,no,no,33;34;35,uncommon,all
+sp_0051,Terrapene ornata,Ornate Box Turtle,Emydidae,Testudines,🐢,no,no,PLAINS;CENTRAL;31,rare,spring;summer;fall
+sp_0052,Trachemys scripta,Red-eared Slider,Emydidae,Testudines,🐢,no,no,ALL,common,all
+sp_0053,Lepidochelys kempii,Kemp's Ridley Sea Turtle,Cheloniidae,Testudines,🐢,yes,no,34;GULF,very_rare,spring;summer
+sp_0054,Gopherus berlandieri,Texas Tortoise,Testudinidae,Testudines,🐢,yes,no,31;34,rare,spring;summer;fall
+sp_0055,Crotalus lepidus,Rock Rattlesnake,Viperidae,Squamata,🐍,no,yes,23;24,rare,spring;summer;fall
+sp_0056,Incilius nebulifer,Gulf Coast Toad,Bufonidae,Amphibia,🐸,no,no,30;31;32;33;34,common,spring;summer;fall
+sp_0057,Anaxyrus houstonensis,Houston Toad,Bufonidae,Amphibia,🐸,yes,no,33,very_rare,spring
+sp_0058,Lithobates catesbeianus,American Bullfrog,Ranidae,Amphibia,🐸,no,no,ALL,common,spring;summer
+sp_0059,Hyla cinerea,Green Treefrog,Hylidae,Amphibia,🐸,no,no,32;EAST,common,spring;summer
+sp_0060,Acris blanchardi,Blanchard's Cricket Frog,Hylidae,Amphibia,🐸,no,no,PLAINS;CENTRAL;EAST,common,spring;summer;fall
+sp_0061,Eurycea sosorum,Barton Springs Salamander,Plethodontidae,Amphibia,🦎,yes,no,30,very_rare,all
+sp_0062,Eurycea rathbuni,Texas Blind Salamander,Plethodontidae,Amphibia,🦎,yes,no,30,very_rare,all
+sp_0063,Ambystoma mavortium,Barred Tiger Salamander,Ambystomatidae,Amphibia,🦎,no,no,24;25;26,rare,spring;summer
+sp_0064,Scaphiopus couchii,Couch's Spadefoot,Scaphiopodidae,Amphibia,🐸,no,no,WEST;30;31,uncommon,summer
+sp_0065,Gastrophryne olivacea,Western Narrow-mouthed Toad,Microhylidae,Amphibia,🐸,no,no,PLAINS;CENTRAL;SOUTH,uncommon,spring;summer
+sp_0066,Micropterus treculii,Guadalupe Bass,Centrarchidae,Actinopterygii,🐟,no,no,30;32;33,uncommon,all
+sp_0067,Micropterus salmoides,Largemouth Bass,Centrarchidae,Actinopterygii,🐟,no,no,ALL,common,all
+sp_0068,Atractosteus spatula,Alligator Gar,Lepisosteidae,Actinopterygii,🐟,no,no,33;34;35;GULF,rare,all
+sp_0069,Ictalurus punctatus,Channel Catfish,Ictaluridae,Actinopterygii,🐟,no,no,ALL,common,all
+sp_0070,Sciaenops ocellatus,Red Drum,Sciaenidae,Actinopterygii,🐟,no,no,34;GULF,common,all
+sp_0071,Cynoscion nebulosus,Spotted Seatrout,Sciaenidae,Actinopterygii,🐟,no,no,34;GULF,common,all
+sp_0072,Paralichthys lethostigma,Southern Flounder,Paralichthyidae,Actinopterygii,🐟,no,no,GULF,uncommon,fall;winter;spring
+sp_0073,Megalops atlanticus,Tarpon,Megalopidae,Actinopterygii,🐟,no,no,GULF,rare,summer;fall
+sp_0074,Herichthys cyanoguttatus,Rio Grande Cichlid,Cichlidae,Actinopterygii,🐠,no,no,30;31;34,uncommon,all
+sp_0075,Lepomis macrochirus,Bluegill,Centrarchidae,Actinopterygii,🐠,no,no,ALL,common,all
+sp_0076,Cyprinodon bovinus,Leon Springs Pupfish,Cyprinodontidae,Actinopterygii,🐠,yes,no,24,very_rare,all
+sp_0077,Lutjanus campechanus,Northern Red Snapper,Lutjanidae,Actinopterygii,🐠,no,no,GULF,uncommon,all
+sp_0078,Carcharhinus leucas,Bull Shark,Carcharhinidae,Elasmobranchii,🦈,no,no,GULF,uncommon,spring;summer;fall
+sp_0079,Carcharhinus limbatus,Blacktip Shark,Carcharhinidae,Elasmobranchii,🦈,no,no,GULF,common,spring;summer;fall
+sp_0080,Sphyrna lewini,Scalloped Hammerhead,Sphyrnidae,Elasmobranchii,🦈,no,no,GULF,rare,summer
+sp_0081,Hypanus sabinus,Atlantic Stingray,Dasyatidae,Elasmobranchii,ray,no,yes,34;GULF,common,all
+sp_0082,Rhinoptera bonasus,Cownose Ray,Rhinopteridae,Elasmobranchii,ray,no,no,GULF,uncommon,spring;summer;fall
+sp_0083,Ginglymostoma cirratum,Nurse Shark,Ginglymostomatidae,Elasmobranchii,🦈,no,no,GULF,rare,summer;fall
+sp_0084,Pristis pectinata,Smalltooth Sawfish,Pristidae,Elasmobranchii,ray,yes,no,GULF,very_rare,summer
