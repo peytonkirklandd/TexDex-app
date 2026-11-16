@@ -6,7 +6,8 @@
 const $ = (id) => document.getElementById(id);
 const TABS = ["camera", "dex", "map", "profile"];
 const TIER_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", very_rare: "Very Rare" };
-const SEASONS = [["spring", "Sp"], ["summer", "Su"], ["fall", "Fa"], ["winter", "Wi"]];
+const TIER_SHORT = { common: "C", uncommon: "U", rare: "R", very_rare: "VR" };
+const SEASONS = [["spring", "Sp", "Spring"], ["summer", "Su", "Summer"], ["fall", "Fa", "Fall"], ["winter", "Wi", "Winter"]];
 
 const state = {
   tab: "camera", stream: null, coords: null, busy: false, lastPhotoUrl: null, authMode: "signup",
@@ -554,11 +555,21 @@ async function openSpecies(speciesId) {
   const result = await api("/api/species/" + encodeURIComponent(speciesId));
   if (!result.ok) return;
   const sp = result.data, caught = sp.catches.length > 0;
+  // Each season cell shows the tier as letters (C, U, R, VR) as well as its
+  // ink colour, so it reads without colour vision and without a hover
+  // tooltip (phones have no hover). A dash means no records that season.
+  const cell = ([key, , name]) => (tier) => tier
+    ? `<i data-tier="${esc(tier)}" role="img" aria-label="${name}: ${TIER_LABEL[tier]}">${TIER_SHORT[tier]}</i>`
+    : `<i role="img" aria-label="${name}: no records">–</i>`;
   const where = sp.regions.map((r) => `
     <div class="where" style="--c:${esc(r.color)}"><i class="sw"></i><span>${esc(r.name)}</span>
-      <div class="seasons">${SEASONS.map(([key, short]) => r.seasons[key]
-        ? `<i data-tier="${esc(r.seasons[key])}" title="${TIER_LABEL[r.seasons[key]]} in ${key}">${short}</i>` : `<i>${short}</i>`).join("")}</div>
+      <div class="seasons">${SEASONS.map((s) => cell(s)(r.seasons[s[0]])).join("")}</div>
     </div>`).join("");
+  const seasonHead = `<div class="where where-head" aria-hidden="true"><i class="sw"></i><span></span>
+    <div class="seasons">${SEASONS.map(([, short]) => `<i>${short}</i>`).join("")}</div></div>`;
+  const seasonKey = `<p class="season-key">${Object.keys(TIER_LABEL).map((t) =>
+    `<span><i data-tier="${t}" aria-hidden="true">${TIER_SHORT[t]}</i>${TIER_LABEL[t]}</span>`).join("")}
+    <span><i aria-hidden="true">–</i>No records</span></p>`;
   openSheet(`
     <div class="sp-hero">
       ${artHtml(sp, { photoUrl: caught ? "/api/photos/" + sp.catches[0].catch_id : null, blank: true })}
@@ -576,8 +587,7 @@ async function openSpecies(speciesId) {
       ? `Photographed ${sp.catches.length} time${sp.catches.length > 1 ? "s" : ""}. First on ${shortDate(sp.catches[sp.catches.length - 1].caught_at)}.`
       : "Not found yet. The regions and seasons below say where to look."}</p>
     <p class="sec">Where and when it lives</p>
-    ${where || '<p class="muted">No region records yet.</p>'}
-    <div class="legend">${Object.keys(TIER_LABEL).map(tierHtml).join("")}</div>
+    ${where ? seasonKey + seasonHead + where : '<p class="muted">No region records yet.</p>'}
     <div class="row"><button class="btn" id="sp-close">Close</button></div>`);
   $("sp-close").addEventListener("click", closeSheet);
 }
@@ -631,7 +641,7 @@ function renderMap() {
   // clip-path cuts every region off at the Texas outline, because the EPA
   // shapes carry on into neighbouring states.
   box.innerHTML = `
-    <svg viewBox="${(m.view || view).join(" ")}" class="tx${m.region ? " zoomed" : ""}">
+    <svg viewBox="${(m.view || view).join(" ")}" class="tx${m.region ? " zoomed" : ""}" aria-hidden="true" focusable="false">
       <defs><clipPath id="tx-clip"><path d="${map.outline}"/></clipPath></defs>
       <g clip-path="url(#tx-clip)">
         ${map.regions.map((s) => `<path class="rg${s.code === m.region ? " on" : ""}" data-region="${esc(s.code)}" fill="${esc(colour[s.code] || "#b9a878")}" d="${s.path}"/>`).join("")}
@@ -642,8 +652,10 @@ function renderMap() {
         ${p.approximate ? `<circle class="halo" cx="${p.x}" cy="${p.y}" r="${r * 3.2}"/>` : ""}
         <circle cx="${p.x}" cy="${p.y}" r="${p.mine ? r : r * 0.8}"/></g>`).join("")}
     </svg>
-    <svg class="compass" viewBox="0 0 40 40"><circle cx="20" cy="22" r="13" fill="none" stroke="#2b2620"/><path d="M20 9l4 13h-8z" fill="#2b2620"/><path d="M20 35l-4-13h8z" fill="none" stroke="#2b2620"/><text x="20" y="7" font-size="8" text-anchor="middle" font-family="monospace">N</text></svg>
+    <svg class="compass" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="22" r="13" fill="none" stroke="#2b2620"/><path d="M20 9l4 13h-8z" fill="#2b2620"/><path d="M20 35l-4-13h8z" fill="none" stroke="#2b2620"/><text x="20" y="7" font-size="8" text-anchor="middle" font-family="monospace">N</text></svg>
     ${colour.outside_land ? `<button class="gulf-btn${m.region === "outside_land" ? " on" : ""}" data-region="outside_land">Gulf waters</button>` : ""}`;
+  // The drawing is hidden from screen readers and skipped by Tab: the region
+  // strip above and the photo list below are the same choices as real buttons.
   zoomTo(box.querySelector("svg.tx"), view);
   box.querySelectorAll("[data-region]").forEach((el) => el.addEventListener("click", () => pickRegion(el.dataset.region)));
   box.querySelectorAll(".pin").forEach((el) => el.addEventListener("click", () => openPin(Number(el.dataset.pin))));

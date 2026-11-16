@@ -16,6 +16,12 @@
   --leather: #33271e;
   --cream: #eadfc4;
   --tape: rgba(201, 174, 132, .72);
+  /* See-through versions of the inks, for washes, margins and stitching. */
+  --rust-line: rgba(163, 67, 42, .28);
+  --rust-wash: rgba(163, 67, 42, .12);
+  --ochre-wash: rgba(176, 130, 42, .16);
+  --cream-stitch: rgba(234, 223, 196, .3);
+  --page-dim: rgba(34, 26, 20, .55);
   --common: #6b665c;
   --uncommon: #55683a;
   --rare: #3f6480;
@@ -49,7 +55,7 @@ p { margin: 0; }
 .paper {
   background-color: var(--paper);
   background-image: var(--grain),
-    linear-gradient(90deg, transparent 15px, rgba(163, 67, 42, .28) 15px, rgba(163, 67, 42, .28) 16px, transparent 16px),
+    linear-gradient(90deg, transparent 15px, var(--rust-line) 15px, var(--rust-line) 16px, transparent 16px),
     repeating-linear-gradient(transparent 0, transparent 29px, var(--rule) 29px, var(--rule) 30px);
   background-attachment: local;
 }
@@ -82,7 +88,7 @@ p { margin: 0; }
 /* ---------- journal cover ---------- */
 #auth { position: absolute; inset: 0; overflow-y: auto; padding: 44px 24px 30px; display: flex; flex-direction: column; gap: 26px;
   background-color: var(--pine); background-image: var(--grain); }
-#auth::before { content: ""; position: absolute; top: 0; bottom: 0; left: 14px; width: 0; border-left: 2px dashed rgba(234, 223, 196, .28); }
+#auth::before { content: ""; position: absolute; top: 0; bottom: 0; left: 14px; width: 0; border-left: 2px dashed var(--cream-stitch); }
 .cover-plate { align-self: center; text-align: center; background: var(--card); background-image: var(--grain); padding: 18px 34px 14px;
   border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: -6px; transform: rotate(-1deg); }
 .cover-plate h1 { font-family: var(--type); font-size: 44px; letter-spacing: .04em; line-height: 1; margin: 8px 0 0; }
@@ -93,7 +99,7 @@ p { margin: 0; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid var(--ink); border-radius: 3px; }
 .seg button { padding: 10px 6px 8px; font-family: var(--type); font-size: 14px; color: var(--ink-soft); }
 .seg button.on { background: var(--ink); color: var(--card); }
-label { display: flex; flex-direction: column; gap: 2px; font-family: var(--type); font-size: 12px; letter-spacing: .06em; color: var(--ink-soft); }
+label { display: flex; flex-direction: column; gap: 2px; font-family: var(--type); font-size: 12px; letter-spacing: .02em; color: var(--ink-soft); }
 /* Inputs are a line to write on, not a box. */
 input { font-family: var(--hand); font-size: 24px; color: var(--ink); padding: 2px 2px 0; border: 0; border-bottom: 1.5px solid var(--ink);
   background: transparent; outline: none; border-radius: 0; width: 100%; }
@@ -112,7 +118,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 /* ---------- tab bar: the leather edge of the journal ---------- */
 #tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabbar) + var(--safe-b)); padding-bottom: var(--safe-b);
   display: grid; grid-template-columns: repeat(4, 1fr); background-color: var(--leather); background-image: var(--grain); z-index: 20; }
-#tabbar::before { content: ""; position: absolute; left: 10px; right: 10px; top: 5px; border-top: 1.5px dashed rgba(234, 223, 196, .3); }
+#tabbar::before { content: ""; position: absolute; left: 10px; right: 10px; top: 5px; border-top: 1.5px dashed var(--cream-stitch); }
 #tabbar button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding-top: 6px;
   color: rgba(234, 223, 196, .75); font-family: var(--type); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 #tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -152,6 +158,9 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 #cam-fallback p { line-height: 1.5; }
 #cam-fallback .hand { color: var(--rust); }
 #tab-camera.no-cam .brand { color: var(--ink); }
+/* ...but once a photo is frozen on screen, the wordmark sits on the photo
+   again and must go back to cream to stay readable. */
+#tab-camera.no-cam #frozen:not(.hidden) ~ .cam-top .brand { color: var(--cream); text-shadow: 0 1px 6px rgba(0, 0, 0, .8); }
 #tab-camera.no-cam .cam-shade { display: none; }
 #scan { position: absolute; inset: 0; background: rgba(20, 17, 13, .35); z-index: 3; }
 .scan-card { position: absolute; left: 22px; right: 22px; bottom: 40px; display: flex; gap: 14px; align-items: center; padding: 14px 16px;
@@ -172,7 +181,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .strip { display: flex; gap: 6px; overflow-x: auto; padding: 2px 16px 2px 26px; margin: 0 -16px 0 -26px; scrollbar-width: none; }
 .strip::-webkit-scrollbar { display: none; }
 /* Index tabs, like dividers sticking out of the journal. */
-.tab { flex: none; display: flex; align-items: center; gap: 7px; padding: 8px 10px 6px; font-family: var(--type); font-size: 12.5px;
+.tab { flex: none; display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 12px 6px; font-family: var(--type); font-size: 12.5px;
   white-space: nowrap; background: var(--card); border: 1px solid var(--ink); border-radius: 3px 3px 0 0; border-bottom-width: 2px; }
 .tab small { font-size: 12px; color: var(--ink-soft); }
 .tab .sw { width: 10px; height: 10px; border: 1px solid var(--ink); background: var(--c); }
@@ -221,7 +230,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 #map-box .pin { cursor: pointer; }
 #map-box .pin circle { fill: var(--card); stroke: var(--ink); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
 #map-box .pin.mine circle:not(.halo) { fill: var(--rust); }
-#map-box .pin circle.halo { fill: rgba(163, 67, 42, .12); stroke: var(--rust); stroke-dasharray: 3 3; stroke-width: 1.2; }
+#map-box .pin circle.halo { fill: var(--rust-wash); stroke: var(--rust); stroke-dasharray: 3 3; stroke-width: 1.2; }
 #map-box .pin.sel circle:not(.halo) { stroke-width: 3.5; }
 .gulf-btn { position: absolute; right: 2px; bottom: 6px; min-height: 44px; font-family: var(--type); font-size: 12px; padding: 6px 10px 4px; border: 1px solid var(--ink);
   background: var(--card); border-radius: 2px; }
@@ -232,7 +241,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .map-key span { display: flex; align-items: center; gap: 5px; }
 .key-pin { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--card); }
 .key-pin.mine { background: var(--rust); }
-.key-pin.rough { border: 1.5px dashed var(--rust); background: rgba(163, 67, 42, .1); }
+.key-pin.rough { border: 1.5px dashed var(--rust); background: var(--rust-wash); }
 .map-empty { font-family: var(--hand); font-size: 21px; color: var(--ink-soft); padding: 8px 4px; line-height: 1.2; }
 /* The list under the map reads like dated journal lines. */
 .entry { width: 100%; display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; text-align: left; padding: 9px 0;
@@ -241,10 +250,10 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .entry .art.sketch .ink { font-size: 30px; opacity: .55; }
 .entry strong { display: block; font-family: var(--hand); font-size: 22px; font-weight: 700; line-height: 1; }
 .entry small { font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
-.entry.sel { background: rgba(176, 130, 42, .16); }
+.entry.sel { background: var(--ochre-wash); }
 
 /* ---------- bottom sheet: a loose page ---------- */
-#sheet-backdrop { position: absolute; inset: 0; background: rgba(34, 26, 20, .55); z-index: 30; }
+#sheet-backdrop { position: absolute; inset: 0; background: var(--page-dim); z-index: 30; }
 #sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 31; max-height: 88%; overflow-y: auto; scrollbar-width: none;
   background-color: var(--card); background-image: var(--grain); border-top: 2px solid var(--ink);
   padding: 22px 20px calc(22px + var(--safe-b)); animation: rise .28s ease-out; }
@@ -261,7 +270,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .guess { width: 100%; display: grid; grid-template-columns: 54px 1fr 28px; gap: 12px; align-items: center; padding: 12px 8px 12px 0; text-align: left;
   border-top: 1px solid var(--pencil); }
 .guess.top { grid-template-columns: 76px 1fr 28px; border: 1.5px solid var(--ink); padding: 12px; margin-bottom: 4px; background: var(--paper); }
-.guess.sel { background: rgba(176, 130, 42, .16); }
+.guess.sel { background: var(--ochre-wash); }
 .guess:not(.top).sel { box-shadow: inset 0 0 0 1.5px var(--rust); }
 .guess.top.sel { border-color: var(--rust); }
 .guess:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
@@ -305,9 +314,16 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .where span { flex: 1; }
 .seasons { display: flex; gap: 3px; }
 .seasons i { width: 24px; padding: 4px 0 2px; text-align: center; font-style: normal; font-family: var(--type); font-size: 12px;
-  border: 1px solid var(--pencil); color: var(--pencil); }
+  border: 1px solid var(--pencil); color: var(--ink-soft); }
 .seasons i[data-tier] { border-color: var(--t); color: var(--card); background: var(--t); }
-.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.where-head { border-bottom: 0; padding-bottom: 0; }
+.where-head .sw { visibility: hidden; }
+.where-head .seasons i { border-color: transparent; }
+/* The key sits right above the cells it explains. */
+.season-key { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--type); font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
+.season-key span { display: flex; align-items: center; gap: 6px; }
+.season-key i { min-width: 24px; padding: 4px 3px 2px; text-align: center; font-style: normal; border: 1px solid var(--pencil); }
+.season-key i[data-tier] { border-color: var(--t); color: var(--card); background: var(--t); }
 .avatars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 8px 0 4px; }
 .avatars button { aspect-ratio: 1; font-size: 26px; border: 1.5px dashed var(--pencil); border-radius: 50%; }
 .avatars button.on { border: 2px solid var(--rust); }
@@ -352,7 +368,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 
 /* ---------- the new journal entry after a catch ---------- */
 #reveal { position: absolute; inset: 0; z-index: 40; overflow-y: auto; padding: 30px 24px calc(26px + var(--safe-b)) 32px; }
-.rv-date { font-family: var(--type); font-size: 12px; color: var(--ink-soft); letter-spacing: .06em; }
+.rv-date { font-family: var(--type); font-size: 12px; color: var(--ink-soft); letter-spacing: .02em; }
 .rv-photo { position: relative; width: 78%; margin: 22px auto 0; transform: rotate(-2deg); }
 .rv-photo .art.photo { padding: 8px 8px 8px; }
 .rv-stamp { position: absolute; right: -34px; bottom: -18px; font-family: var(--type); font-size: 19px; letter-spacing: .08em; color: var(--rust);
