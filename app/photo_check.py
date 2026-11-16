@@ -46,7 +46,7 @@ def check_photo(image: Image.Image) -> dict | None:
             "code": "too_small",
             "title": "That photo is too small",
             "message": "There aren't enough pixels in this picture to make out an animal.",
-            "tip": "Take a new photo with the camera instead of using a tiny or cropped image.",
+            "tip": "Take the photo again with the camera.",
         }
     light = brightness(image)
     if light < TOO_DARK:
@@ -90,9 +90,9 @@ NOT_CLEAR = {
 }
 NOT_A_PHOTO = {
     "code": "not_a_photo",
-    "title": "That file isn't a photo",
-    "message": "We couldn't open it as a picture.",
-    "tip": "Use the camera button, or pick a JPG or PNG image.",
+    "title": "That photo didn't come through",
+    "message": "We couldn't open what the camera sent as a picture.",
+    "tip": "Take the photo again.",
 }
 DUPLICATE = {
     "code": "duplicate",
