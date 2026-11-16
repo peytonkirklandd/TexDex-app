@@ -65,12 +65,24 @@ const dexNumber = (n) => "No. " + String(n).padStart(3, "0");
 
 /* ---------- bottom sheet ---------- */
 
+// The sheet is a dialog, so keyboard and screen-reader users need the same
+// things a tap user gets for free: focus moves into it, Tab stays inside it,
+// Escape closes it, and focus goes back to whatever opened it.
+const FOCUSABLE = 'button:not([disabled]), input, [href], [tabindex]:not([tabindex="-1"])';
+
 function openSheet(html, { onClose = null } = {}) {
-  $("sheet").innerHTML = html;
-  $("sheet").scrollTop = 0;
-  $("sheet").classList.remove("hidden");
+  const sheet = $("sheet");
+  if (sheet.classList.contains("hidden")) openSheet.opener = document.activeElement;
+  sheet.innerHTML = html;
+  sheet.scrollTop = 0;
+  sheet.classList.remove("hidden");
   $("sheet-backdrop").classList.remove("hidden");
   openSheet.onClose = onClose;
+  // Name the dialog after its first heading.
+  const title = sheet.querySelector("h3");
+  if (title) { title.id = "sheet-title"; sheet.setAttribute("aria-labelledby", "sheet-title"); }
+  else sheet.removeAttribute("aria-labelledby");
+  sheet.focus({ preventScroll: true });
 }
 function closeSheet() {
   $("sheet").classList.add("hidden");
@@ -78,8 +90,24 @@ function closeSheet() {
   const callback = openSheet.onClose;
   openSheet.onClose = null;
   if (callback) callback();
+  // Return focus to the opener, if it is still on screen.
+  const opener = openSheet.opener;
+  openSheet.opener = null;
+  if (opener && opener.isConnected && opener.offsetParent !== null) opener.focus({ preventScroll: true });
 }
 $("sheet-backdrop").addEventListener("click", closeSheet);
+$("sheet").addEventListener("keydown", (event) => {
+  if (event.key === "Escape") { event.preventDefault(); closeSheet(); return; }
+  if (event.key !== "Tab") return;
+  const items = [...$("sheet").querySelectorAll(FOCUSABLE)].filter((el) => el.offsetParent !== null);
+  if (!items.length) { event.preventDefault(); return; }
+  const first = items[0], last = items[items.length - 1];
+  if (event.shiftKey && (document.activeElement === first || document.activeElement === $("sheet"))) {
+    event.preventDefault(); last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault(); first.focus();
+  }
+});
 
 /* ---------- sign up / log in ---------- */
 
@@ -90,20 +118,60 @@ function showAuth() {
   $("tabbar").classList.add("hidden");
 }
 
+// Errors go under the field they are about, so the user knows what to fix.
+// Each one names the problem and the rule, never just "invalid".
+function clearAuthErrors() {
+  for (const field of ["username", "password"]) {
+    $("err-" + field).textContent = "";
+    $("f-" + field).removeAttribute("aria-invalid");
+  }
+  $("auth-error").textContent = "";
+}
+function fieldError(field, message) {
+  $("err-" + field).textContent = message;
+  $("f-" + field).setAttribute("aria-invalid", "true");
+}
+
 document.querySelectorAll(".seg button").forEach((button) => button.addEventListener("click", () => {
   state.authMode = button.dataset.mode;
-  document.querySelectorAll(".seg button").forEach((b) => b.classList.toggle("on", b === button));
-  $("display-row").classList.toggle("hidden", state.authMode === "login");
-  $("auth-submit").textContent = state.authMode === "login" ? "Open the journal" : "Start the journal";
-  $("auth-error").textContent = "";
+  const signup = state.authMode === "signup";
+  document.querySelectorAll(".seg button").forEach((b) => {
+    b.classList.toggle("on", b === button);
+    b.setAttribute("aria-pressed", String(b === button));
+  });
+  $("display-row").classList.toggle("hidden", !signup);
+  // Returning users don't need the sign-up rules in their way.
+  $("hint-username").classList.toggle("hidden", !signup);
+  $("hint-password").classList.toggle("hidden", !signup);
+  $("auth-submit").textContent = signup ? "Start my journal" : "Open my journal";
+  clearAuthErrors();
 }));
 
 $("auth-form").addEventListener("submit", async (event) => {
   event.preventDefault();
-  $("auth-error").textContent = "";
-  const result = await api("/api/" + state.authMode, { json: {
-    username: $("f-username").value, password: $("f-password").value, display_name: $("f-display").value } });
-  if (!result.ok) { $("auth-error").textContent = result.data.error || "Something went wrong."; return; }
+  clearAuthErrors();
+  const username = $("f-username").value.trim(), password = $("f-password").value;
+  // Catch empty fields here; the server still checks every rule.
+  if (!username) fieldError("username", "Add a username.");
+  if (!password) fieldError("password", "Add a password.");
+  if (!username || !password) return;
+
+  let result;
+  try {
+    result = await api("/api/" + state.authMode, { json: {
+      username, password, display_name: $("f-display").value } });
+  } catch (e) {
+    $("auth-error").textContent = "We couldn't reach TexDex. Check your signal and try again.";
+    return;
+  }
+  if (!result.ok) {
+    const message = result.data.error || "That didn't work. Please try again.";
+    // The server's messages start with the field they are about.
+    if (/^(usernames|that username is taken)/i.test(message)) fieldError("username", message);
+    else if (/^passwords/i.test(message)) fieldError("password", message);
+    else $("auth-error").textContent = message;
+    return;
+  }
   $("f-password").value = "";
   enterApp();
 });
@@ -275,34 +343,106 @@ function showPhotoError(error) {
   $("err-retry").addEventListener("click", closeSheet);
 }
 
-function guessHtml(guess, top) {
-  const percent = Math.round(guess.confidence * 100);
-  return `<button class="guess${top ? " top" : ""}" data-species="${esc(guess.species_id)}">
-    ${artHtml(guess)}
-    <div>
-      <strong>${esc(guess.common_name)}</strong>
-      <em>${esc(guess.scientific_name)}</em>
-      <div class="match">${tierHtml(guess.tier)}<span>${percent}% match</span></div>
-    </div></button>`;
+// Below this match score we don't pre-pick the top guess and we suggest a
+// retake. The real model already refuses photos it is very unsure about (on
+// the server); this catches the "it might be right" middle ground.
+const LOW_MATCH = 0.5;
+
+const TICK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17 19 7"/></svg>';
+
+// Safety marks shown on a guess *before* the user saves it, because the
+// moment that matters is when they are still standing near the animal.
+function flagsHtml(sp) {
+  return (sp.venomous ? '<span class="flag warn">Venomous</span>' : "")
+    + (sp.protected ? '<span class="flag shield">Protected</span>' : "");
 }
 
+function guessHtml(guess, top) {
+  const percent = Math.round(guess.confidence * 100);
+  return `<button type="button" class="guess${top ? " top" : ""}" data-species="${esc(guess.species_id)}" aria-pressed="false">
+    ${artHtml(guess)}
+    <div class="guess-text">
+      <strong>${esc(guess.common_name)}</strong>
+      <em>${esc(guess.scientific_name)}</em>
+      <div class="match">${tierHtml(guess.tier)}<span>${percent}% match</span>${flagsHtml(guess)}</div>
+    </div>
+    <span class="pick">${TICK_SVG}</span></button>`;
+}
+
+// The guess sheet works in two steps: tap a row to choose it, then press Save.
+// Saving is permanent (XP, stamps, the Dex), so a stray tap with one hand
+// should only ever *select*, never save.
 function showGuesses(data) {
   const [top, ...others] = data.guesses;
+  const unsure = top.confidence < LOW_MATCH;
   const where = data.region ? ` in the ${esc(data.region.name)}` : "";
+  const photo = state.lastPhotoUrl
+    ? `<div class="sheet-photo"><div class="art photo"><img src="${esc(state.lastPhotoUrl)}" alt="Your photo"></div></div>` : "";
   openSheet(`
-    <h3 class="sheet-title">Is this what you saw?</h3>
-    <p class="sheet-sub">The closest match${where}. Tap the animal you photographed.</p>
+    <div class="sheet-head">
+      <div>
+        <h3 class="sheet-title">Is this what you saw?</h3>
+        <p class="sheet-sub">${unsure ? "We're not sure about this one" : "The closest match"}${where}. Pick the animal in your photo, then save it.</p>
+      </div>
+      ${photo}
+    </div>
+    ${unsure ? '<p class="note tip">None of these is a strong match. A closer or clearer photo usually helps.</p>' : ""}
     ${guessHtml(top, true)}
     ${others.length ? '<p class="sec">Or possibly</p>' + others.map((g) => guessHtml(g, false)).join("") : ""}
-    <div class="row"><button class="btn plain" id="none-btn">None of these, retake</button></div>`, { onClose: resetCamera });
-  $("none-btn").addEventListener("click", closeSheet);
-  $("sheet").querySelectorAll(".guess").forEach((button) => button.addEventListener("click", async () => {
-    const result = await api("/api/catches", { json: { pending_id: data.pending_id, species_id: button.dataset.species } });
-    openSheet.onClose = null;  // don't restart the camera underneath the new entry
-    closeSheet();
-    if (result.ok) showReveal(result.data);
-    else { toast(result.data.error || "That catch didn't save."); resetCamera(); }
-  }));
+    <div id="pick-note"></div>
+    <p class="form-error" id="save-error" role="alert"></p>
+    <div class="row sheet-actions">
+      <button type="button" class="btn" id="none-btn">Retake</button>
+      <button type="button" class="btn primary" id="save-btn" disabled>Save to my Dex</button>
+    </div>`, { onClose: resetCamera });
+
+  const rows = [...$("sheet").querySelectorAll(".guess")];
+  const saveButton = $("save-btn");
+  let chosen = null, saving = false;
+
+  function choose(speciesId) {
+    chosen = data.guesses.find((g) => g.species_id === speciesId) || null;
+    rows.forEach((row) => {
+      const on = row.dataset.species === speciesId;
+      row.classList.toggle("sel", on);
+      row.setAttribute("aria-pressed", String(on));
+    });
+    saveButton.disabled = !chosen;
+    $("save-error").textContent = "";
+    // Repeat the safety note next to the Save button for the chosen animal.
+    $("pick-note").innerHTML = !chosen ? ""
+      : chosen.venomous ? '<p class="note warn">Venomous. Keep your distance; never touch, corner or pick it up.</p>'
+      : chosen.protected ? '<p class="note shield">Protected species. Its exact spot will not be saved.</p>' : "";
+  }
+
+  rows.forEach((row) => row.addEventListener("click", () => { if (!saving) choose(row.dataset.species); }));
+  if (!unsure) choose(top.species_id);
+  $("none-btn").addEventListener("click", () => { if (!saving) closeSheet(); });
+
+  saveButton.addEventListener("click", async () => {
+    if (!chosen || saving) return;  // guard against a double tap
+    saving = true;
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving…";
+    let result;
+    try {
+      result = await api("/api/catches", { json: { pending_id: data.pending_id, species_id: chosen.species_id } });
+    } catch (e) {
+      result = { ok: false, data: { error: "We couldn't reach TexDex. Check your signal and try again." } };
+    }
+    if (result.ok) {
+      openSheet.onClose = null;  // don't restart the camera underneath the new entry
+      closeSheet();
+      showReveal(result.data);
+      return;
+    }
+    // Keep the sheet and the choice so the user can just press Save again.
+    saving = false;
+    saveButton.disabled = false;
+    // The error says what to do next (try again, or retake if the photo expired).
+    saveButton.textContent = "Save to my Dex";
+    $("save-error").textContent = result.data.error || "That entry didn't save. Please try again.";
+  });
 }
 
 /* ---------- the new journal entry shown after a catch ---------- */
@@ -324,7 +464,9 @@ function showReveal(r) {
       ${tierHtml(sp.tier)}
     </div>
     ${sp.venomous ? '<p class="note warn">Venomous. Admire it from a distance; never touch, corner or pick it up.</p>' : ""}
-    ${r.location_blurred ? '<p class="note shield">Protected species. To keep it safe, only a rough area was saved, not the exact spot.</p>' : ""}
+    ${!sp.protected ? ""
+      : r.location_blurred ? '<p class="note shield">Protected species. To keep it safe, only a rough area was saved, not the exact spot.</p>'
+      : '<p class="note shield">Protected species. No location was saved with this entry, so it won\'t appear on the map.</p>'}
     <p class="rv-xp">+${r.xp} XP</p>
     <div class="rank">
       <div class="line"><span>${r.leveled_up ? "Promoted: " : ""}Level ${lvl.level}, ${esc(lvl.title)}</span><span>${lvl.xp_to_next} XP to go</span></div>
@@ -381,7 +523,12 @@ function renderDex(data) {
   const region = data.regions.find((r) => r.code === d.region);
   const found = data.entries.filter((e) => e.caught).length;
   $("region-name").textContent = region ? region.name : "All of Texas";
-  $("region-blurb").textContent = (region ? region.blurb + ". " : "") + `${found} of ${data.entries.length} on this page found.`;
+  // The tally above already covers the whole Dex, so this line only adds a
+  // count when a filter narrows the list.
+  const filtered = Boolean(d.region || d.group);
+  const count = `You've found ${found} of the ${data.entries.length} shown here.`;
+  $("region-blurb").textContent = region ? `${region.blurb}. ${count}`
+    : filtered ? count : "Tap any animal to see where and when it lives.";
 
   $("region-tabs").innerHTML = regionTabsHtml(data.regions, d.region, (r) => `${r.caught}/${r.total}`);
   // Tapping the tab that is already selected clears that filter.
@@ -399,7 +546,7 @@ function renderDex(data) {
       ${artHtml(e, { photoUrl: e.caught ? "/api/photos/" + e.photo_id : null, blank: true })}
       <span class="nm">${esc(e.common_name)}</span>
     </button>`).join("")
-    : '<p class="empty">Nothing on this page. Try another region or group.</p>';
+    : '<p class="empty">No animals match this region and group. Try All animals, or another region.</p>';
   $("dex-grid").querySelectorAll(".card").forEach((c) => c.addEventListener("click", () => openSpecies(c.dataset.species)));
 }
 
@@ -471,7 +618,8 @@ function renderMap() {
   const m = state.map, map = m.data, box = $("map-box");
   const info = m.regions.find((r) => r.code === m.region);
   if (!map.available) {
-    box.innerHTML = '<p class="map-empty">The map appears once the region shapes are downloaded:<br>python -m data_engine.fetch_ecoregions</p>';
+    // Setup steps for developers live in the README, not on screen.
+    box.innerHTML = '<p class="map-empty">The map isn\'t ready yet. Your photos are still saved and will appear here once it is.</p>';
     $("map-regions").innerHTML = $("map-list").innerHTML = "";
     return;
   }
@@ -582,7 +730,7 @@ function renderProfile(p, status) {
     <table class="ledger">
       <tr><td>Species found</td><td>${s.species} <small>of ${s.species_total}</small></td></tr>
       <tr><td>Photos logged</td><td>${s.catches}</td></tr>
-      <tr><td>Regions explored</td><td>${s.regions} <small>of ${s.regions_total}</small></td></tr>
+      <tr><td>Regions explored${s.catches && !s.regions ? '<br><small>Only photos with a location count</small>' : ""}</td><td>${s.regions} <small>of ${s.regions_total}</small></td></tr>
       <tr><td>Rarest find</td><td>${s.rarest ? esc(s.rarest.common_name) : "none yet"}</td></tr>
     </table>
     <p class="sec">By kind of animal</p>
@@ -598,8 +746,8 @@ function renderProfile(p, status) {
       <strong>${esc(c.common_name)}</strong><small>${shortDate(c.caught_at)} · +${c.xp} XP</small></div>`).join("")}</div>`
       : '<p class="hand muted">Nothing yet. Take your first photo on the Catch tab.</p>'}
     <div class="foot">
-      <p class="foot-note">${status.fake_id ? "ID engine: demo mode (guesses are random). Start the app with --bioclip for real identification." : "ID engine: BioCLIP 2 with the local-species boost."}
-        ${status.demo_data ? " Species data: demo set (illustrative regions and rarity)." : ""}</p>
+      <p class="foot-note">${status.fake_id ? "Demo mode: the guesses are random, not a real identification." : "Identification: BioCLIP 2, boosted by what lives in your region this month."}
+        ${status.demo_data ? " Regions and rarity are illustrative until the real sighting data is in." : ""}</p>
       <div class="row" style="margin-top:0"><button class="btn" id="edit-profile">Edit name and seal</button><button class="btn danger" id="logout">Log out</button></div>
     </div>`;
   $("profile-body").querySelectorAll(".badge").forEach((b) => b.addEventListener("click", () => toast(b.dataset.hint)));
@@ -630,7 +778,18 @@ function editProfile(p) {
 
 /* ---------- start ---------- */
 
-(async function boot() {
-  const status = (await api("/api/status")).data;
-  if (status.logged_in) enterApp(); else showAuth();
-})();
+// Without this check a failed first request would leave every screen hidden:
+// a blank page with nothing to tap.
+async function boot() {
+  $("boot-error").classList.add("hidden");
+  let result;
+  try { result = await api("/api/status"); } catch (e) { result = null; }
+  if (!result || !result.ok) {
+    $("boot-error").classList.remove("hidden");
+    $("boot-retry").focus();
+    return;
+  }
+  if (result.data.logged_in) enterApp(); else showAuth();
+}
+$("boot-retry").addEventListener("click", boot);
+boot();

@@ -63,7 +63,7 @@ p { margin: 0; }
 .btn.plain { border-color: transparent; background: none; text-decoration: underline; text-underline-offset: 3px; }
 .btn.danger { color: var(--rust); border-color: var(--rust); }
 /* A rarity "stamp": typewriter letters in a slightly crooked ink box. */
-.tier { display: inline-block; font-family: var(--type); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+.tier { display: inline-block; font-family: var(--type); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
   color: var(--t); border: 1.5px solid var(--t); border-radius: 2px; padding: 3px 5px 1px; transform: rotate(-1.5deg); white-space: nowrap; }
 [data-tier="common"] { --t: var(--common); }
 [data-tier="uncommon"] { --t: var(--uncommon); }
@@ -97,9 +97,16 @@ label { display: flex; flex-direction: column; gap: 2px; font-family: var(--type
 /* Inputs are a line to write on, not a box. */
 input { font-family: var(--hand); font-size: 24px; color: var(--ink); padding: 2px 2px 0; border: 0; border-bottom: 1.5px solid var(--ink);
   background: transparent; outline: none; border-radius: 0; width: 100%; }
-input::placeholder { color: rgba(43, 38, 32, .3); }
+/* Placeholders are only examples now (the rules are in the hint below each
+   field), but they still need to be readable outdoors: about 3:1. */
+input::placeholder { color: rgba(43, 38, 32, .55); }
 input:focus { border-bottom-color: var(--rust); }
-.auth-note { font-size: 12px; font-style: italic; color: var(--ink-soft); line-height: 1.4; }
+input[aria-invalid="true"] { border-bottom-color: var(--rust); }
+.hint { font-family: var(--type); font-size: 12.5px; letter-spacing: 0; color: var(--ink-soft); margin-top: 4px; }
+.field-error { font-family: var(--type); font-size: 13px; letter-spacing: 0; color: var(--rust); }
+.field-error:empty { display: none; }
+.auth-intro { font-size: 15px; line-height: 1.45; }
+.auth-note { font-size: 13px; font-style: italic; color: var(--ink-soft); line-height: 1.4; }
 .form-error { font-family: var(--hand); font-size: 20px; color: var(--rust); min-height: 22px; line-height: 1.1; }
 
 /* ---------- tab bar: the leather edge of the journal ---------- */
@@ -107,7 +114,7 @@ input:focus { border-bottom-color: var(--rust); }
   display: grid; grid-template-columns: repeat(4, 1fr); background-color: var(--leather); background-image: var(--grain); z-index: 20; }
 #tabbar::before { content: ""; position: absolute; left: 10px; right: 10px; top: 5px; border-top: 1.5px dashed rgba(234, 223, 196, .3); }
 #tabbar button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding-top: 6px;
-  color: rgba(234, 223, 196, .55); font-family: var(--type); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; }
+  color: rgba(234, 223, 196, .75); font-family: var(--type); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 #tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 #tabbar button.on { color: var(--cream); }
 #tabbar button.on span { border-bottom: 1.5px solid var(--ochre); }
@@ -121,7 +128,7 @@ input:focus { border-bottom-color: var(--rust); }
 .cam-shade.bottom { bottom: 0; height: 180px; background: linear-gradient(0deg, rgba(20, 17, 13, .85), transparent); }
 .cam-top { position: absolute; top: 0; left: 0; right: 0; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; z-index: 4; }
 .brand { font-family: var(--type); font-size: 20px; letter-spacing: .06em; color: var(--cream); }
-.slip { font-family: var(--type); font-size: 11.5px; padding: 6px 9px 4px; background: var(--card); color: var(--ink); border-radius: 2px;
+.slip { font-family: var(--type); font-size: 12px; padding: 6px 9px 4px; background: var(--card); color: var(--ink); border-radius: 2px;
   transform: rotate(1deg); max-width: 64%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* Photo corners, like the ones that hold a print in an album. */
 #reticle { position: absolute; left: 50%; top: 44%; width: min(70vw, 330px); aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; }
@@ -167,7 +174,7 @@ input:focus { border-bottom-color: var(--rust); }
 /* Index tabs, like dividers sticking out of the journal. */
 .tab { flex: none; display: flex; align-items: center; gap: 7px; padding: 8px 10px 6px; font-family: var(--type); font-size: 12.5px;
   white-space: nowrap; background: var(--card); border: 1px solid var(--ink); border-radius: 3px 3px 0 0; border-bottom-width: 2px; }
-.tab small { font-size: 10.5px; color: var(--ink-soft); }
+.tab small { font-size: 12px; color: var(--ink-soft); }
 .tab .sw { width: 10px; height: 10px; border: 1px solid var(--ink); background: var(--c); }
 .tab.on { background: var(--ink); color: var(--card); }
 .tab.on small { color: rgba(248, 242, 226, .65); }
@@ -180,7 +187,9 @@ input:focus { border-bottom-color: var(--rust); }
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; margin-top: 16px; }
 .card { position: relative; text-align: left; display: flex; flex-direction: column; gap: 5px; }
 .card:nth-child(3n+1) { transform: rotate(-.7deg); } .card:nth-child(3n) { transform: rotate(.6deg); }
-.card .num { font-family: var(--type); font-size: 10.5px; color: var(--ink-soft); display: flex; justify-content: space-between; }
+.card .num { font-family: var(--type); font-size: 12px; color: var(--ink-soft); display: flex; flex-direction: column; line-height: 1.2; }
+/* Number and tier always stack, so every card's photo box lines up in a row
+   (at 12px, "Very Rare" no longer fits beside the number). */
 .card .num i { font-style: normal; color: var(--t); }
 .art { position: relative; aspect-ratio: 1; display: grid; place-items: center; }
 /* Not found yet: an empty pencil frame with a faint sketch, waiting for a photo. */
@@ -214,11 +223,11 @@ input:focus { border-bottom-color: var(--rust); }
 #map-box .pin.mine circle:not(.halo) { fill: var(--rust); }
 #map-box .pin circle.halo { fill: rgba(163, 67, 42, .12); stroke: var(--rust); stroke-dasharray: 3 3; stroke-width: 1.2; }
 #map-box .pin.sel circle:not(.halo) { stroke-width: 3.5; }
-.gulf-btn { position: absolute; right: 2px; bottom: 6px; font-family: var(--type); font-size: 11px; padding: 6px 8px 4px; border: 1px solid var(--ink);
+.gulf-btn { position: absolute; right: 2px; bottom: 6px; min-height: 44px; font-family: var(--type); font-size: 12px; padding: 6px 10px 4px; border: 1px solid var(--ink);
   background: var(--card); border-radius: 2px; }
 .gulf-btn.on { background: var(--ink); color: var(--card); }
 .compass { position: absolute; left: 4px; bottom: 4px; width: 34px; height: 34px; opacity: .7; pointer-events: none; }
-.map-key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--type); font-size: 10.5px; color: var(--ink-soft); margin-top: 8px;
+.map-key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--type); font-size: 12px; color: var(--ink-soft); margin-top: 8px;
   padding-top: 7px; border-top: 1px solid var(--pencil); }
 .map-key span { display: flex; align-items: center; gap: 5px; }
 .key-pin { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--card); }
@@ -231,7 +240,7 @@ input:focus { border-bottom-color: var(--rust); }
 .entry .art { width: 52px; }
 .entry .art.sketch .ink { font-size: 30px; opacity: .55; }
 .entry strong { display: block; font-family: var(--hand); font-size: 22px; font-weight: 700; line-height: 1; }
-.entry small { font-family: var(--type); font-size: 10.5px; color: var(--ink-soft); }
+.entry small { font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
 .entry.sel { background: rgba(176, 130, 42, .16); }
 
 /* ---------- bottom sheet: a loose page ---------- */
@@ -242,15 +251,43 @@ input:focus { border-bottom-color: var(--rust); }
 @keyframes rise { from { transform: translateY(100%); } }
 .sheet-title { font-family: var(--hand); font-weight: 700; font-size: 34px; line-height: 1; }
 .sheet-sub { font-size: 14px; font-style: italic; color: var(--ink-soft); margin: 6px 0 16px; line-height: 1.4; }
-.guess { width: 100%; display: grid; grid-template-columns: 54px 1fr; gap: 14px; align-items: center; padding: 12px 0; text-align: left;
+/* The guess sheet opens with the user's own photo taped beside the question,
+   so they can compare it with the guesses below. */
+.sheet-head { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: start; }
+.sheet-photo { width: 76px; margin: 6px 4px 0 0; transform: rotate(2deg); }
+.sheet-photo .art.photo { padding: 3px; }
+.sheet-photo .art.photo::before { height: 11px; top: -6px; }
+/* Each guess is a choice, not a save: tapping one ticks it in red pen. */
+.guess { width: 100%; display: grid; grid-template-columns: 54px 1fr 28px; gap: 12px; align-items: center; padding: 12px 8px 12px 0; text-align: left;
   border-top: 1px solid var(--pencil); }
-.guess.top { grid-template-columns: 76px 1fr; border: 1.5px solid var(--ink); padding: 12px; margin-bottom: 4px; background: var(--paper); }
+.guess.top { grid-template-columns: 76px 1fr 28px; border: 1.5px solid var(--ink); padding: 12px; margin-bottom: 4px; background: var(--paper); }
+.guess.sel { background: rgba(176, 130, 42, .16); }
+.guess:not(.top).sel { box-shadow: inset 0 0 0 1.5px var(--rust); }
+.guess.top.sel { border-color: var(--rust); }
+.guess:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+.guess-text { min-width: 0; }
+.pick { width: 28px; height: 28px; border-radius: 50%; border: 1.5px dashed var(--pencil); display: grid; place-items: center; }
+.pick svg { width: 18px; height: 18px; fill: none; stroke: var(--rust); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.guess.sel .pick { border: 2px solid var(--rust); }
+.guess.sel .pick svg { opacity: 1; }
+/* Safety marks sit beside the tier stamp, typed in the same note colours. */
+.match { flex-wrap: wrap; row-gap: 6px; }
+.flag { font-family: var(--type); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 5px 1px; border-radius: 2px;
+  color: var(--card); white-space: nowrap; }
+.flag.warn { background: var(--rust); }
+.flag.shield { background: var(--slate); }
+/* Retake and Save stay pinned at the bottom of the sheet, in thumb reach,
+   however long the list of guesses is. */
+.sheet-actions { position: sticky; bottom: calc(-22px - var(--safe-b)); margin: 16px -20px 0; padding: 12px 20px calc(16px + var(--safe-b));
+  background-color: var(--card); background-image: var(--grain); border-top: 1px solid var(--pencil); }
+.btn { min-height: 44px; }
+.btn:disabled { opacity: .45; cursor: default; transform: none; }
 .guess .art.sketch .ink { font-size: 36px; }
 .guess.top .art.sketch .ink { font-size: 52px; }
 .guess strong { display: block; font-family: var(--hand); font-size: 24px; font-weight: 700; line-height: 1; }
 .guess.top strong { font-size: 30px; }
 .guess em { display: block; font-size: 12.5px; color: var(--ink-soft); margin: 3px 0 7px; }
-.match { display: flex; align-items: center; gap: 10px; font-family: var(--type); font-size: 11px; color: var(--ink-soft); }
+.match { display: flex; align-items: center; gap: 10px; font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
 .note { font-family: var(--hand); font-size: 21px; line-height: 1.2; padding: 4px 0 4px 12px; border-left: 3px solid var(--t, var(--ink)); margin: 12px 0; }
 .note.warn { --t: var(--rust); color: var(--rust); }
 .note.shield { --t: var(--slate); color: var(--slate); }
@@ -267,7 +304,7 @@ input:focus { border-bottom-color: var(--rust); }
 .where .sw { width: 10px; height: 10px; border: 1px solid var(--ink); background: var(--c); flex: none; }
 .where span { flex: 1; }
 .seasons { display: flex; gap: 3px; }
-.seasons i { width: 24px; padding: 4px 0 2px; text-align: center; font-style: normal; font-family: var(--type); font-size: 10px;
+.seasons i { width: 24px; padding: 4px 0 2px; text-align: center; font-style: normal; font-family: var(--type); font-size: 12px;
   border: 1px solid var(--pencil); color: var(--pencil); }
 .seasons i[data-tier] { border-color: var(--t); color: var(--card); background: var(--t); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
@@ -279,28 +316,28 @@ input:focus { border-bottom-color: var(--rust); }
 .owner { display: grid; grid-template-columns: 88px 1fr; gap: 16px; align-items: center; }
 .seal { width: 88px; height: 88px; border-radius: 50%; border: 2px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 3px;
   display: grid; place-items: center; font-size: 44px; transform: rotate(-4deg); }
-.owner small { font-family: var(--type); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+.owner small { font-family: var(--type); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
 .owner h2 { font-family: var(--hand); font-weight: 700; font-size: 38px; line-height: .95; border-bottom: 1.5px solid var(--ink); padding-bottom: 2px; margin: 2px 0 5px; }
 .owner p { font-size: 13px; font-style: italic; color: var(--ink-soft); }
 .rank { margin-top: 18px; }
 .rank .line { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--type); font-size: 12.5px; margin-bottom: 6px; }
 .rank .line b { font-family: var(--hand); font-size: 26px; line-height: 1; }
-.rank small { display: block; font-family: var(--type); font-size: 11px; color: var(--ink-soft); margin-top: 5px; }
+.rank small { display: block; font-family: var(--type); font-size: 12px; color: var(--ink-soft); margin-top: 5px; }
 .ledger { width: 100%; border-collapse: collapse; }
 .ledger td { padding: 7px 0 5px; border-bottom: 1px solid var(--pencil); font-size: 14.5px; }
 .ledger td:last-child { text-align: right; font-family: var(--hand); font-size: 24px; font-weight: 700; line-height: 1; }
-.ledger td:last-child small { font-family: var(--type); font-size: 11px; font-weight: 400; color: var(--ink-soft); }
+.ledger td:last-child small { font-family: var(--type); font-size: 12px; font-weight: 400; color: var(--ink-soft); }
 .gp { display: grid; grid-template-columns: 26px 1fr 44px; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 14px; }
 .gp .ink { font-size: 20px; }
 .gp .meter { margin-top: 4px; height: 6px; }
-.gp > span:last-child { font-family: var(--type); font-size: 11.5px; text-align: right; color: var(--ink-soft); }
+.gp > span:last-child { font-family: var(--type); font-size: 12px; text-align: right; color: var(--ink-soft); }
 /* Badges are passport-style stamps: inked when earned, a faint ring when not. */
 .badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 8px; }
 .badge { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .badge i { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 25px;
   border: 1.5px dashed var(--pencil); }
 .badge i .ink { opacity: .18; }
-.badge span { font-family: var(--type); font-size: 9.5px; line-height: 1.2; text-align: center; color: var(--ink-soft); }
+.badge span { font-family: var(--type); font-size: 12px; line-height: 1.2; text-align: center; color: var(--ink-soft); }
 .badge.earned i { border: 2px solid var(--rust); outline: 1px solid var(--rust); outline-offset: 2px; }
 .badge.earned i .ink { opacity: 1; filter: brightness(0) invert(.3) sepia(1) saturate(4) hue-rotate(-25deg); }
 .badge.earned span { color: var(--ink); }
@@ -310,7 +347,7 @@ input:focus { border-bottom-color: var(--rust); }
 .rc { flex: none; width: 104px; }
 .rc:nth-child(odd) { transform: rotate(-1.5deg); } .rc:nth-child(even) { transform: rotate(1.2deg); }
 .rc strong { display: block; font-family: var(--hand); font-size: 18px; line-height: 1; margin-top: 6px; }
-.rc small { font-family: var(--type); font-size: 10px; color: var(--ink-soft); }
+.rc small { font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
 .foot { display: flex; flex-direction: column; gap: 12px; margin-top: 26px; }
 
 /* ---------- the new journal entry after a catch ---------- */
@@ -330,5 +367,21 @@ input:focus { border-bottom-color: var(--rust); }
 
 #toast { position: absolute; left: 50%; bottom: calc(var(--tabbar) + var(--safe-b) + 14px); transform: translateX(-50%) rotate(-.6deg); z-index: 50;
   padding: 10px 14px 7px; background: var(--ink); color: var(--card); font-family: var(--type); font-size: 12.5px; max-width: 86%; text-align: center; }
+
+/* Keyboard focus: a red-pen ring on every control (only for keyboard focus,
+   so tapping doesn't leave rings behind). Cream-coloured controls on dark
+   leather or camera backgrounds get an ochre ring instead, to stay visible. */
+:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+input:focus-visible { outline: none; border-bottom-width: 2.5px; border-bottom-color: var(--rust); }
+#tabbar button:focus-visible, .cam-controls button:focus-visible, #sheet:focus-visible { outline-color: var(--ochre); }
+#tabbar button:focus-visible { outline-offset: -4px; }
+#sheet:focus-visible { outline: none; }
+
+/* Start-up failure: a paper slip on the journal's pine cover. */
+#boot-error { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; padding: 24px;
+  background-color: var(--pine); background-image: var(--grain); }
+#boot-error .page-slip { width: 100%; }
+#boot-error h2 { font-family: var(--type); font-size: 22px; }
+#boot-error p { line-height: 1.5; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

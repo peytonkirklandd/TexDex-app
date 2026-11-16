@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#33271e">
   <title>TexDex Field Journal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,23 +21,28 @@
       <p class="plate-hand">Field Journal</p>
       <p class="plate-small">vol. 1</p>
     </div>
-    <form id="auth-form" class="page-slip" autocomplete="off">
-      <div class="seg" role="tablist">
-        <button type="button" class="on" data-mode="signup">New journal</button>
-        <button type="button" data-mode="login">Open mine</button>
+    <form id="auth-form" class="page-slip" autocomplete="off" novalidate>
+      <p class="auth-intro">Photograph a wild animal anywhere in Texas. TexDex tells you what it is and how rare it is here, then adds it to your journal.</p>
+      <div class="seg" role="group" aria-label="New or returning">
+        <button type="button" class="on" data-mode="signup" aria-pressed="true">New journal</button>
+        <button type="button" data-mode="login" aria-pressed="false">I have one</button>
       </div>
       <label id="display-row">This journal belongs to
-        <input id="f-display" maxlength="30" placeholder="your name">
+        <input id="f-display" maxlength="30" placeholder="Sam">
       </label>
       <label>Username
-        <input id="f-username" maxlength="20" placeholder="letters, numbers, _" autocapitalize="none" required>
+        <input id="f-username" maxlength="20" placeholder="trail_walker" autocapitalize="none" required aria-describedby="hint-username err-username">
+        <small class="hint" id="hint-username">3 to 20 letters, numbers or _</small>
+        <span class="field-error" id="err-username" role="alert"></span>
       </label>
       <label>Password
-        <input id="f-password" type="password" minlength="8" placeholder="at least 8 characters" required>
+        <input id="f-password" type="password" minlength="8" required aria-describedby="hint-password err-password">
+        <small class="hint" id="hint-password">At least 8 characters</small>
+        <span class="field-error" id="err-password" role="alert"></span>
       </label>
       <p class="auth-note">Class demo: use a made-up username and password, not ones you use anywhere else.</p>
-      <p id="auth-error" class="form-error"></p>
-      <button class="btn primary big" id="auth-submit">Start the journal</button>
+      <p id="auth-error" class="form-error" role="alert"></p>
+      <button class="btn primary big" id="auth-submit">Start my journal</button>
     </form>
   </section>
 
@@ -130,7 +135,7 @@
 
   <!-- ============ Bottom tab bar ============ -->
   <nav id="tabbar" class="hidden">
-    <button data-tab="camera" class="on" aria-label="Camera">
+    <button data-tab="camera" class="on" aria-label="Catch">
       <svg viewBox="0 0 24 24"><path d="M4 8h3l1.600-2.400h6.800L17 8h3a1.500 1.500 0 011.500 1.500v8A1.500 1.500 0 0120 19H4a1.500 1.500 0 01-1.500-1.500v-8A1.500 1.500 0 014 8z"/><circle cx="12" cy="13" r="3.600"/></svg>
       <span>Catch</span>
     </button>
@@ -150,12 +155,21 @@
 
   <!-- Bottom sheet (guesses, errors, species pages, pins, edit profile) -->
   <div id="sheet-backdrop" class="hidden"></div>
-  <div id="sheet" class="hidden" role="dialog" aria-modal="true"></div>
+  <div id="sheet" class="hidden" role="dialog" aria-modal="true" tabindex="-1"></div>
+
+  <!-- Shown only if the app can't reach the server when it starts -->
+  <section id="boot-error" class="hidden" aria-labelledby="boot-error-title">
+    <div class="page-slip">
+      <h2 id="boot-error-title">Can't reach TexDex</h2>
+      <p>The journal couldn't load. Check your signal or Wi-Fi, then try again.</p>
+      <button class="btn primary big" id="boot-retry">Try again</button>
+    </div>
+  </section>
 
   <!-- The new journal entry shown after a catch -->
   <div id="reveal" class="paper hidden"></div>
 
-  <div id="toast" class="hidden"></div>
+  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 </div>
 <script src="/static/app.js"></script>
 </body>
