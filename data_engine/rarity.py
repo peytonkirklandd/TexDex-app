@@ -153,3 +153,51 @@ def build_rarity_table(sightings_path, out_path, method: str = "effort_adjusted"
             tier_counts[tier] += 1
             writer.writerow([species_id, region, season, tier])
     return {"method": method, "rows": len(values), "tiers": dict(tier_counts), **skipped}
+
+
+# ---------- rarity from a table of counts (no visit information) ----------
+
+def shares_from_month_table(month_table_path, group_of: dict | None = None) -> dict:
+    """{(species_id, region, season): share} from a month-by-region table
+    (columns region, month, species_id, sightings).
+
+    This is the "simple" method, with one change: when `group_of` is given
+    ({species_id: animal group}), a species is compared only with its own
+    kind. share = its sightings / all sightings OF THAT GROUP in the
+    region + season.
+
+    Why: birdwatchers file hundreds of times more records than anyone else.
+    Measured against every sighting, a largemouth bass or a common toad
+    would come out "very rare" only because few people report fish and
+    frogs. Comparing fish with fish and birds with birds removes that.
+    """
+    counts = defaultdict(int)   # (species, region, season) -> sightings
+    totals = defaultdict(int)   # (region, season, group) -> sightings
+    with open(month_table_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            season = SEASON_BY_MONTH[int(row["month"])]
+            group = group_of.get(row["species_id"], "") if group_of else ""
+            n = int(row["sightings"])
+            counts[(row["species_id"], row["region"], season)] += n
+            totals[(row["region"], season, group)] += n
+    return {
+        (species_id, region, season):
+            n / totals[(region, season, group_of.get(species_id, "") if group_of else "")]
+        for (species_id, region, season), n in counts.items()
+    }
+
+
+def build_rarity_from_month_table(month_table_path, out_path, group_of: dict | None = None) -> dict:
+    """Write the docs/interface.md rarity CSV from a month-by-region table."""
+    shares = shares_from_month_table(month_table_path, group_of)
+    tier_counts = defaultdict(int)
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(OUTPUT_COLUMNS)
+        for (species_id, region, season), share in sorted(shares.items()):
+            tier = tier_for(share, SIMPLE_CUTOFFS)
+            tier_counts[tier] += 1
+            writer.writerow([species_id, region, season, tier])
+    return {"method": "simple, within animal group" if group_of else "simple",
+            "rows": len(shares), "tiers": dict(tier_counts)}
