@@ -74,7 +74,10 @@ def main() -> None:
         (stage / "data" / "processed").mkdir(parents=True)
         for name in DATA_FILES:
             shutil.copy2(processed / name, stage / "data" / "processed" / name)
-        shutil.copy2(HERE / "Dockerfile", stage / "Dockerfile")
+        # Linux line endings: a Windows checkout can turn them into \r\n,
+        # which would end up inside the start command on the server.
+        dockerfile = (HERE / "Dockerfile").read_text(encoding="utf-8").replace("\r\n", "\n")
+        (stage / "Dockerfile").write_text(dockerfile, encoding="utf-8", newline="\n")
 
         settings = f"SUPABASE_URL={config['supabase_url']},SUPABASE_ANON_KEY={config['supabase_key']}"
         subprocess.run([
