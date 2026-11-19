@@ -33,7 +33,7 @@ To try it on a phone, the page must be served over https (phone browsers only al
 |---|---|
 | BioCLIP 2 identification + location boost | Real. Runs locally with `--bioclip`. |
 | Ecoregion shapes, Texas outline | Real (EPA, U.S. Census Bureau). Downloaded into `data/`, not in git. |
-| Species list, regions, rarity, protected flags | **Demo data** in `app/demo_data/`: real Texas species, illustrative values. Replaced by Person A's GBIF tables via the `TEXDEX_*` environment variables in `app/config.py`. |
+| Species list, regions, rarity, month table | Real, once built: 1,356 Texas vertebrates from GBIF counts (`python -m data_engine.fetch_gbif_counts`, then `python -m data_engine.build_tables`). They live in `data/`, not in git. Without them the app falls back to the 84-species demo set in `app/demo_data/`. The protected flag is still a placeholder (IUCN status, not the TPWD list). |
 | Accounts and storage | Local SQLite file (`app/store.py`). The Supabase tables and row-level security are written in `app/supabase/schema.sql` but not applied. |
 
 ## Layout

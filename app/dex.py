@@ -49,7 +49,9 @@ CLASS_GROUPS = {
     "Crocodylia": ("reptiles", "Reptiles", "🦎"),
     "Amphibia": ("amphibians", "Amphibians", "🐸"),
     "Actinopterygii": ("fish", "Fish", "🐟"),
+    "Petromyzonti": ("fish", "Fish", "🐟"),          # lampreys: fish to everyone but a taxonomist
     "Elasmobranchii": ("sharks_rays", "Sharks & Rays", "🦈"),
+    "Holocephali": ("sharks_rays", "Sharks & Rays", "🦈"),  # chimaeras
 }
 GROUP_ORDER = ["birds", "mammals", "reptiles", "amphibians", "fish", "sharks_rays"]
 
@@ -109,6 +111,16 @@ class Dex:
         known = [code for code in REGION_INFO if code in seen]
         self.regions = known + sorted(seen - set(known))
 
+        # Each species' most common tier anywhere in Texas, worked out once
+        # here. With over a thousand species, searching the whole rarity
+        # table again for every card made the Dex page slow.
+        self.statewide_tier: dict[str, str] = {}
+        for (species_id, _region), by_season in self.rarity.items():
+            for tier in by_season.values():
+                best = self.statewide_tier.get(species_id)
+                if best is None or TIER_ORDER.index(tier) < TIER_ORDER.index(best):
+                    self.statewide_tier[species_id] = tier
+
     # ---------- rarity lookups ----------
 
     def regions_of(self, species_id: str) -> list[str]:
@@ -128,9 +140,7 @@ class Dex:
             if season in by_season:
                 return by_season[season]
             return min(by_season.values(), key=TIER_ORDER.index)
-        tiers = [t for (sid, _r), by_season in self.rarity.items() if sid == species_id
-                 for t in by_season.values()]
-        return min(tiers, key=TIER_ORDER.index) if tiers else "uncommon"
+        return self.statewide_tier.get(species_id, "uncommon")
 
     # ---------- the Dex page ----------
 

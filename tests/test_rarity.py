@@ -163,3 +163,93 @@ def test_unknown_method_is_an_error(tmp_path):
     path = _write(tmp_path, ["sp_0001,30.27,-97.74,2025-11-01,30"])
     with pytest.raises(ValueError):
         build_rarity_table(path, tmp_path / "out.csv", method="magic")
+
+
+# ---------- rarity from a table of counts ----------
+
+def test_shares_from_counts_compare_each_animal_with_its_own_kind(tmp_path):
+    from data_engine.rarity import build_rarity_from_month_table, shares_from_month_table
+
+    table = tmp_path / "month_region.csv"
+    table.write_text(
+        "region,month,species_id,sightings\n"
+        "30,4,bird_a,900\n"      # April and May are both spring, so they add up
+        "30,5,bird_a,90\n"
+        "30,4,bird_b,10\n"
+        "30,4,fish_a,3\n"
+        "30,4,fish_b,1\n"
+        "30,7,fish_a,5\n"        # summer is a separate season
+    )
+    groups = {"bird_a": "birds", "bird_b": "birds", "fish_a": "fish", "fish_b": "fish"}
+
+    # Against every sighting, the fish look vanishingly rare...
+    plain = shares_from_month_table(table)
+    assert plain[("fish_a", "30", "spring")] == pytest.approx(3 / 1004)
+    # ...but among fish, fish_a is 3 of the 4 spring fish records.
+    within = shares_from_month_table(table, groups)
+    assert within[("fish_a", "30", "spring")] == pytest.approx(3 / 4)
+    assert within[("fish_b", "30", "spring")] == pytest.approx(1 / 4)
+    assert within[("bird_a", "30", "spring")] == pytest.approx(990 / 1000)
+    assert within[("fish_a", "30", "summer")] == pytest.approx(1.0)
+
+    out = tmp_path / "rarity.csv"
+    summary = build_rarity_from_month_table(table, out, groups)
+    with open(out, newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert list(rows[0].keys()) == ["species_id", "region", "season", "rarity_tier"]
+    assert summary["rows"] == len(rows) == 5
+
+
+# ---------- building the app's tables from GBIF counts ----------
+
+def test_build_tables_from_made_up_gbif_files(tmp_path):
+    import json
+    from data_engine.build_tables import build_tables, tidy_common_name
+
+    assert tidy_common_name("Bullfrog, North American bullfrog", "Lithobates catesbeianus") == "Bullfrog"
+    assert tidy_common_name("Texas spiny lizard", "Sceloporus olivaceus") == "Texas Spiny Lizard"
+    assert tidy_common_name("Scutulatus", "Crotalus scutulatus") == "Crotalus scutulatus"
+    assert tidy_common_name("", "Falco atricapillus") == "Falco atricapillus"
+
+    raw, out = tmp_path / "raw", tmp_path / "out"
+    raw.mkdir()
+    (raw / "gbif_counts.csv").write_text(
+        "region,month,species_key,sightings\n"
+        "30,4,1,50\n30,7,1,40\n"          # a bird
+        "outside_land,7,2,9\n"            # a fish with no class in GBIF
+        "30,4,3,6\n"                      # a rattlesnake
+        "30,4,4,2\n"                      # too few sightings
+        "30,4,5,80\n"                     # a person
+        "30,4,6,30\n"                     # a sea squirt
+    )
+    def sp(sci, common, family, order, cls, iucn=""):
+        return {"scientific_name": sci, "common_name": common, "family": family, "order": order,
+                "class": cls, "iucn": iucn}
+    (raw / "gbif_species.json").write_text(json.dumps({
+        "1": sp("Grus americana", "Whooping Crane", "Gruidae", "Gruiformes", "Aves", "EN"),
+        "2": sp("Sciaenops ocellatus", "red drum", "Sciaenidae", "Perciformes", ""),
+        "3": sp("Crotalus atrox", "Western Diamond-backed Rattlesnake", "Viperidae", "", "Squamata", "LC"),
+        "4": sp("Rarus rarus", "Rare Thing", "Raridae", "", "Aves"),
+        "5": sp("Homo sapiens", "Human", "Hominidae", "Primates", "Mammalia"),
+        "6": sp("Styela plicata", "Pleated Sea Squirt", "Styelidae", "", "Ascidiacea"),
+    }))
+
+    summary = build_tables(raw, out)
+
+    with open(out / "species.csv", newline="", encoding="utf-8") as f:
+        species = {r["scientific_name"]: r for r in csv.DictReader(f)}
+    with open(out / "species_groups.csv", newline="", encoding="utf-8") as f:
+        groups = {r["species_id"]: r["animal_class"] for r in csv.DictReader(f)}
+
+    assert set(species) == {"Grus americana", "Sciaenops ocellatus", "Crotalus atrox"}
+    # Every species left out is counted with its reason.
+    assert summary["left_out"] == {"fewer_than_5_sightings": 1, "people_pets_farm_animals": 1,
+                                   "not_a_vertebrate": 1}
+    assert species["Grus americana"]["protected"] == "yes"
+    assert species["Crotalus atrox"]["venomous"] == "yes"
+    assert species["Sciaenops ocellatus"]["common_name"] == "Red Drum"
+    assert groups[species["Sciaenops ocellatus"]["species_id"]] == "Actinopterygii"  # blank class = fish
+    assert list(species["Grus americana"].keys()) == [
+        "species_id", "scientific_name", "common_name", "family", "protected", "venomous"]
+    with open(out / "month_region.csv", newline="") as f:
+        assert len(list(csv.DictReader(f))) == 4
