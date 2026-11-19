@@ -24,6 +24,12 @@ Settings, and why:
                             the free tier. The first visit after a sleep
                             takes about a minute.
   --cpu-boost               extra CPU while starting up, so waking is faster.
+  --no-cpu-throttling       keep the CPU on while the server is awake, not
+                            only during requests. Without it the background
+                            BioCLIP warm-up barely runs, and the first catches
+                            would load the model themselves (slow, and two at
+                            once could load it twice and run out of memory).
+                            The server still sleeps when nobody uses it.
   --allow-unauthenticated   anyone with the link can open the site (the app
                             itself still needs an account).
 """
@@ -83,7 +89,7 @@ def main() -> None:
         subprocess.run([
             gcloud, "run", "deploy", SERVICE, "--source", str(stage), "--region", REGION,
             "--memory", "4Gi", "--cpu", "2", "--max-instances", "1", "--min-instances", "0",
-            "--cpu-boost", "--timeout", "300", "--allow-unauthenticated",
+            "--cpu-boost", "--no-cpu-throttling", "--timeout", "300", "--allow-unauthenticated",
             "--set-env-vars", settings, "--quiet",
         ], check=True)
 
