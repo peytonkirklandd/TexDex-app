@@ -29,6 +29,15 @@ DEMO = ROOT / "app" / "demo_data"
 PROCESSED = ROOT / "data" / "processed"
 
 
+def _project_url(url: str | None) -> str | None:
+    """Supabase's dashboard shows the address both as https://x.supabase.co
+    and as https://x.supabase.co/rest/v1/. Accept either; keep the first."""
+    if not url:
+        return None
+    url = url.strip().rstrip("/")
+    return url.removesuffix("/rest/v1")
+
+
 def load_config() -> dict:
     """Build the config dict from environment variables and defaults."""
     def path(env_name: str, default: Path) -> Path:
@@ -53,7 +62,7 @@ def load_config() -> dict:
         "use_fake_id": os.getenv("USE_FAKE_ID", "1") == "1",
         "warm_up_model": True,
         # Empty = use the local SQLite file.
-        "supabase_url": os.getenv("SUPABASE_URL") or None,
+        "supabase_url": _project_url(os.getenv("SUPABASE_URL")),
         "supabase_key": os.getenv("SUPABASE_ANON_KEY") or None,
     }
 

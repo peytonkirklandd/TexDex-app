@@ -61,6 +61,15 @@ create table catches (
     unique (user_id, photo_hash)   -- the duplicate-photo check, enforced by the database
 );
 
+-- Table permissions. Newer Supabase projects give the API no access to a
+-- table until it is granted. Grants say which actions a role may try at all;
+-- the row-level security policies below then decide which ROWS.
+--   authenticated = a logged-in app user;  service_role = the secret key (seed script)
+grant select, insert, update on profiles to authenticated;
+grant select on species, rarity to authenticated;
+grant select, insert on catches to authenticated;
+grant select, insert, update on species, rarity to service_role;
+
 alter table profiles enable row level security;
 alter table species  enable row level security;
 alter table rarity   enable row level security;
