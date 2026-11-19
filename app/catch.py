@@ -37,10 +37,13 @@ NO_LOCATION = (0.0, 0.0)
 
 
 class CatchFlow:
-    def __init__(self, config: dict, dex):
+    def __init__(self, config: dict, dex, storage=store, db=None):
+        """storage is the store.py module (SQLite) or supabase_store.py; both
+        have the same functions. db is what those functions take first."""
         self.config = config
         self.dex = dex
-        self.db = config["db_path"]
+        self.store = storage
+        self.db = db if db is not None else config["db_path"]
         self.photo_dir = Path(config["photo_dir"])
         self._regions = None
 
@@ -86,7 +89,7 @@ class CatchFlow:
         # Duplicate check: the hash is a fingerprint of the exact file. The
         # same file always gives the same fingerprint.
         photo_hash = hashlib.sha256(photo_bytes).hexdigest()
-        if store.photo_already_used(self.db, user_id, photo_hash):
+        if self.store.photo_already_used(self.db, user_id, photo_hash):
             return {"ok": False, "error": photo_check.DUPLICATE}
 
         problem = photo_check.check_photo(image)
@@ -94,7 +97,7 @@ class CatchFlow:
             return {"ok": False, "error": problem}
 
         # Throw away any earlier photo this user took but never confirmed.
-        for old_file in store.clear_pending(self.db, user_id):
+        for old_file in self.store.clear_pending(self.db, user_id):
             Path(old_file).unlink(missing_ok=True)
 
         image.thumbnail((MAX_PHOTO_SIDE, MAX_PHOTO_SIDE))
@@ -119,7 +122,7 @@ class CatchFlow:
         if not guesses:
             photo_file.unlink(missing_ok=True)
             return {"ok": False, "error": photo_check.NOT_CLEAR}
-        pending_id = store.add_pending(
+        pending_id = self.store.add_pending(
             self.db, user_id, str(photo_file), photo_hash, latitude, longitude,
             [{"species_id": g["species_id"], "confidence": g["confidence"]} for g in guesses])
         return {"ok": True, "pending_id": pending_id, "guesses": guesses,
@@ -153,7 +156,7 @@ class CatchFlow:
         """Save the catch. Returns the "reveal" data for the celebration
         screen, or None if the pending ID is unknown or the species was not
         one of the model's guesses."""
-        pending = store.take_pending(self.db, user_id, pending_id)
+        pending = self.store.take_pending(self.db, user_id, pending_id)
         if pending is None:
             return None
         confidence = {g["species_id"]: g["confidence"] for g in pending["guesses"]}.get(species_id)
@@ -162,7 +165,7 @@ class CatchFlow:
             Path(pending["photo_file"]).unlink(missing_ok=True)
             return None
 
-        before = store.catches_for_user(self.db, user_id)
+        before = self.store.catches_for_user(self.db, user_id)
         badges_before = {b["key"] for b in game.badges(before, self.dex) if b["earned"]}
         xp_before = sum(c["xp"] for c in before)
         is_new = all(c["species_id"] != species_id for c in before)
@@ -174,12 +177,12 @@ class CatchFlow:
         xp = game.xp_for_catch(tier, is_new)
         save_lat, save_lon = location_to_store(sp["protected"], pending["latitude"], pending["longitude"])
 
-        catch_id = store.add_catch(
+        catch_id = self.store.add_catch(
             self.db, user_id=user_id, species_id=species_id, photo_file=pending["photo_file"],
             photo_hash=pending["photo_hash"], latitude=save_lat, longitude=save_lon,
             region=region, tier=tier, confidence=confidence, xp=xp)
 
-        after = store.catches_for_user(self.db, user_id)
+        after = self.store.catches_for_user(self.db, user_id)
         new_badges = [b for b in game.badges(after, self.dex)
                       if b["earned"] and b["key"] not in badges_before]
         level_before = game.level_for_xp(xp_before)

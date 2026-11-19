@@ -4,11 +4,15 @@
     python -m app --bioclip    real BioCLIP 2 identification
 
 Every /api route except sign-up, log-in and status needs a logged-in user,
-and every query is filtered by that user's id, which is the local stand-in
-for Supabase row-level security (see app/supabase/schema.sql).
+and every query is filtered by that user's id. With Supabase, the database
+also enforces that itself (row-level security, app/supabase/schema.sql).
+
+Storage: Supabase when SUPABASE_URL and SUPABASE_ANON_KEY are set (accounts
+and catches survive restarts), otherwise a local SQLite file (tests, offline).
 """
 from __future__ import annotations
 
+import io
 import re
 import tempfile
 import threading
@@ -16,11 +20,13 @@ from datetime import date
 from functools import wraps
 from pathlib import Path
 
+import requests
 from flask import Flask, g, jsonify, request, send_file, send_from_directory
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from data_engine.rarity import season_of
 
-from . import game, store
+from . import game, store as sqlite_store, supabase_store
 from .catch import CatchFlow
 from .config import load_config, share_files_with_identify
 from .dex import TIER_LABELS, Dex
@@ -28,7 +34,8 @@ from .privacy import location_for_shared_map
 from .texas_map import build_map, project_point
 
 STATIC = Path(__file__).resolve().parent / "static"
-COOKIE = "texdex_session"
+COOKIES = (supabase_store.COOKIE, supabase_store.REFRESH_COOKIE)  # cleared on log-out
+COOKIE_MAX_AGE = 60 * 60 * 24 * 30  # stay logged in for 30 days
 USERNAME_RULE = re.compile(r"^[a-z0-9_]{3,20}$")
 AVATARS = ["🤠", "🦎", "🦅", "🦌", "🐍", "🐢", "🦇", "🐸", "🦈", "🌵", "⭐", "🌻"]
 
@@ -36,13 +43,24 @@ AVATARS = ["🤠", "🦎", "🦅", "🦌", "🐍", "🐢", "🦇", "🐸", "🦈
 def create_app(config: dict | None = None) -> Flask:
     config = config or load_config()
     share_files_with_identify(config)
-    store.init_db(config["db_path"])
+    # Pick the storage once. Both modules have the same functions, and `db`
+    # is what each of them takes first (a Supabase address, or a file path).
+    if config.get("supabase_url") and config.get("supabase_key"):
+        store = supabase_store
+        db = supabase_store.SupabaseDB(config["supabase_url"].rstrip("/"), config["supabase_key"])
+    else:
+        store = sqlite_store
+        db = config["db_path"]
+    store.init_db(db)
 
     app = Flask(__name__, static_folder=None)
+    # On Google Cloud Run the app sits behind Google's https front door,
+    # which passes the original "https" along in a header. ProxyFix reads it,
+    # so request.is_secure is True there and cookies get the secure flag.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
     app.config["MAX_CONTENT_LENGTH"] = 15 * 1024 * 1024  # refuse uploads over 15 MB
     dex = Dex(config["species_csv"], config["rarity_csv"], config["groups_csv"])
-    flow = CatchFlow(config, dex)
-    db = config["db_path"]
+    flow = CatchFlow(config, dex, store, db)
     state = {"model_ready": config["use_fake_id"], "map": None}
 
     if not config["use_fake_id"] and config.get("warm_up_model"):
@@ -64,7 +82,28 @@ def create_app(config: dict | None = None) -> Flask:
 
     @app.before_request
     def load_user():
-        g.user_id = store.user_for_session(db, request.cookies.get(COOKIE))
+        g.user_id = g.access_token = None
+        g.new_cookies = {}
+        if not request.path.startswith("/api/"):
+            return  # pages and static files don't need to know who is asking
+        who = store.who_is(db, request.cookies)
+        if who:
+            g.user_id, g.access_token, g.new_cookies = who["user_id"], who["token"], who["cookies"]
+
+    def set_cookies(response, cookies: dict):
+        # httponly: page scripts cannot read the cookie. samesite: other
+        # websites cannot make requests with it. secure: only sent over https
+        # (left off on plain-http localhost so local testing still works).
+        for name, value in cookies.items():
+            response.set_cookie(name, value, httponly=True, samesite="Lax",
+                                secure=request.is_secure, max_age=COOKIE_MAX_AGE)
+        return response
+
+    @app.after_request
+    def refresh_cookies(response):
+        # Supabase access tokens last an hour; who_is() swaps an expired one
+        # for a fresh one, and this hands the fresh one back to the browser.
+        return set_cookies(response, g.get("new_cookies") or {})
 
     def login_required(view):
         @wraps(view)
@@ -74,13 +113,8 @@ def create_app(config: dict | None = None) -> Flask:
             return view(*args, **kwargs)
         return wrapper
 
-    def start_session(user_id: int):
-        response = jsonify(ok=True)
-        # httponly: page scripts cannot read the cookie. samesite: other
-        # websites cannot make requests with it.
-        response.set_cookie(COOKIE, store.create_session(db, user_id), httponly=True,
-                            samesite="Lax", max_age=60 * 60 * 24 * 30)
-        return response
+    def start_session(session: dict):
+        return set_cookies(jsonify(ok=True), session["cookies"])
 
     # ---------- pages ----------
 
@@ -104,29 +138,29 @@ def create_app(config: dict | None = None) -> Flask:
             return jsonify(error="Usernames are 3 to 20 letters, numbers or underscores."), 400
         if len(password) < 8:
             return jsonify(error="Passwords need at least 8 characters."), 400
-        user_id = store.create_user(db, username, password, display_name)
-        if user_id is None:
+        session = store.sign_up(db, username, password, display_name)
+        if session is None:
             return jsonify(error="That username is taken. Try another."), 409
-        return start_session(user_id)
+        return start_session(session)
 
     @app.post("/api/login")
     def login():
         body = request.get_json(silent=True) or {}
-        user_id = store.check_login(db, str(body.get("username", "")).strip().lower(),
-                                    str(body.get("password", "")))
-        if user_id is None:
+        session = store.log_in(db, str(body.get("username", "")).strip().lower(),
+                               str(body.get("password", "")))
+        if session is None:
             # Same message for "no such user" and "wrong password", so the
             # form cannot be used to find out which usernames exist.
             return jsonify(error="That username and password don't match."), 401
-        return start_session(user_id)
+        return start_session(session)
 
     @app.post("/api/logout")
     def logout():
-        token = request.cookies.get(COOKIE)
-        if token:
-            store.delete_session(db, token)
+        store.log_out(db, request.cookies)
+        g.new_cookies = {}  # don't hand back a refreshed token on the way out
         response = jsonify(ok=True)
-        response.delete_cookie(COOKIE)
+        for name in COOKIES:
+            response.delete_cookie(name)
         return response
 
     @app.get("/api/status")
@@ -284,9 +318,12 @@ def create_app(config: dict | None = None) -> Flask:
         catch = store.get_catch(db, catch_id)
         # Only the owner can load a photo. Same answer for "not yours" and
         # "does not exist", so ids cannot be probed.
-        if catch is None or catch["user_id"] != g.user_id or not Path(catch["photo_file"]).is_file():
+        photo_bytes = None
+        if catch is not None and catch["user_id"] == g.user_id:
+            photo_bytes = store.read_photo(db, catch)
+        if photo_bytes is None:
             return jsonify(error="Photo not found."), 404
-        return send_file(catch["photo_file"], mimetype="image/jpeg", max_age=3600)
+        return send_file(io.BytesIO(photo_bytes), mimetype="image/jpeg", max_age=3600)
 
     @app.errorhandler(413)
     def too_big(_error):
@@ -294,5 +331,16 @@ def create_app(config: dict | None = None) -> Flask:
             "code": "too_big", "title": "That file is too big",
             "message": "Photos need to be under 15 MB.",
             "tip": "Take the photo again with the camera."}), 413
+
+    @app.errorhandler(supabase_store.SupabaseError)
+    @app.errorhandler(requests.RequestException)
+    def storage_down(error):
+        # Supabase was unreachable or refused. Log the detail for us (it never
+        # contains a location), and give the user a plain message.
+        app.logger.error("Supabase problem: %s", error)
+        return jsonify(ok=False, error={
+            "code": "storage", "title": "Your journal couldn't be reached",
+            "message": "TexDex couldn't save or load your journal just now.",
+            "tip": "Check your signal and try again in a moment."}), 503
 
     return app

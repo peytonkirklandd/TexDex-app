@@ -41,6 +41,8 @@ def config(tmp_path, monkeypatch):
     cfg = load_config()
     cfg.update(db_path=tmp_path / "test.sqlite3", photo_dir=tmp_path / "photos",
                use_fake_id=True, warm_up_model=False,
+               # Always the local SQLite file in tests, even if .env has Supabase keys.
+               supabase_url=None, supabase_key=None,
                # No ecoregion file in tests: region lookups return '' (unknown).
                regions_geojson=tmp_path / "none.geojson", outline_geojson=tmp_path / "none2.geojson")
     return cfg
