@@ -209,8 +209,8 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .caption p { font-size: 13.5px; font-style: italic; color: var(--ink-soft); margin-top: 3px; line-height: 1.35; }
 
 /* ---------- Dex: specimen cards ---------- */
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 10px; margin-top: 16px; }
-.card { position: relative; text-align: left; display: flex; flex-direction: column; gap: 5px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 10px; margin-top: 16px; }
+.card { position: relative; text-align: left; display: flex; min-width: 0; flex-direction: column; gap: 5px; }
 .card:nth-child(3n+1) { transform: rotate(-.7deg); } .card:nth-child(3n) { transform: rotate(.6deg); }
 .card .num { font-family: var(--type); font-size: 12px; color: var(--ink-soft); display: flex; flex-direction: column; line-height: 1.2; }
 /* Number and tier always stack, so every card's photo box lines up in a row
@@ -227,7 +227,7 @@ input[aria-invalid="true"] { border-bottom-color: var(--rust); }
 .art.photo::before { content: ""; position: absolute; top: -7px; left: 50%; width: 38%; height: 13px; margin-left: -19%; background: var(--tape);
   transform: rotate(-3deg); z-index: 1; }
 .art.sketch .ink { font-size: 40px; }
-.card .nm { font-family: var(--hand); font-size: 18.5px; line-height: 1; min-height: 37px; }
+.card .nm { font-family: var(--hand); font-size: 18.5px; line-height: 1; min-height: 37px; overflow-wrap: anywhere; }
 .card:not(.caught) .nm { color: var(--ink-soft); }
 .empty { grid-column: 1 / -1; font-family: var(--hand); font-size: 22px; color: var(--ink-soft); padding: 26px 0; }
 

@@ -43,13 +43,18 @@ def load_config() -> dict:
     def path(env_name: str, default: Path) -> Path:
         return Path(os.getenv(env_name) or default)
 
-    species_csv = path("TEXDEX_SPECIES_CSV", DEMO / "species.csv")
+    # Which species tables to use. The real ones (built from GBIF by
+    # `python -m data_engine.build_tables`) win when they exist; otherwise the
+    # small made-up demo set. TEXDEX_USE_DEMO=1 forces the demo set (tests do this).
+    real_tables = (PROCESSED / "species.csv").is_file() and os.getenv("TEXDEX_USE_DEMO") != "1"
+    tables = PROCESSED if real_tables else DEMO
+    species_csv = path("TEXDEX_SPECIES_CSV", tables / "species.csv")
     app_data = path("TEXDEX_APP_DATA", ROOT / "data" / "app")  # data/ is git-ignored
     return {
         "species_csv": species_csv,
-        "rarity_csv": path("TEXDEX_RARITY_CSV", DEMO / "rarity.csv"),
-        "groups_csv": path("TEXDEX_SPECIES_GROUPS_CSV", DEMO / "species_groups.csv"),
-        "month_region_csv": path("TEXDEX_MONTH_REGION_CSV", DEMO / "month_region.csv"),
+        "rarity_csv": path("TEXDEX_RARITY_CSV", tables / "rarity.csv"),
+        "groups_csv": path("TEXDEX_SPECIES_GROUPS_CSV", tables / "species_groups.csv"),
+        "month_region_csv": path("TEXDEX_MONTH_REGION_CSV", tables / "month_region.csv"),
         "regions_geojson": path("TEXDEX_REGIONS_GEOJSON", PROCESSED / "ecoregions.geojson"),
         "outline_geojson": path("TEXDEX_OUTLINE_GEOJSON", PROCESSED / "texas_outline.geojson"),
         "db_path": app_data / "texdex.sqlite3",
