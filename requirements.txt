@@ -12,3 +12,5 @@ pillow>=10
 
 # --- Person B: web app ---
 flask>=3.0
+requests>=2.31        # talks to Supabase (app/supabase_store.py)
+python-dotenv>=1.0    # reads settings from .env

@@ -1,10 +1,9 @@
 """Local storage: accounts, log-in sessions, pending IDs and catches.
 
-This is a small SQLite database in one file, used for local development and
-the class demo. The Supabase version of the same tables (with row-level
-security) is in app/supabase/schema.sql; this file is what gets swapped out
-when the Supabase project exists. Every function takes the database path, so
-tests can use a throwaway file.
+This is a small SQLite database in one file, used for tests and offline
+development. When SUPABASE_URL is set, the app uses supabase_store.py
+instead, which has the same functions (tables in app/supabase/schema.sql).
+Every function takes the database path, so tests can use a throwaway file.
 
 The "collection" is not a table. It is worked out from the catches table
 whenever it is needed (see dex.py), so the two can never disagree.
@@ -161,6 +160,39 @@ def delete_session(db_path, token: str) -> None:
         conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
 
 
+# The server calls these four. supabase_store.py has the same four, so the
+# server works the same with either storage. A "session" is
+# {"user_id", "token", "cookies"}: "cookies" are what to set in the browser.
+
+COOKIE = "texdex_session"
+
+
+def _session(db_path, user_id: int) -> dict:
+    return {"user_id": user_id, "token": None,
+            "cookies": {COOKIE: create_session(db_path, user_id)}}
+
+
+def sign_up(db_path, username: str, password: str, display_name: str) -> dict | None:
+    """Create the account and log in. None if the username is taken."""
+    user_id = create_user(db_path, username, password, display_name)
+    return None if user_id is None else _session(db_path, user_id)
+
+
+def log_in(db_path, username: str, password: str) -> dict | None:
+    user_id = check_login(db_path, username, password)
+    return None if user_id is None else _session(db_path, user_id)
+
+
+def who_is(db_path, cookies) -> dict | None:
+    user_id = user_for_session(db_path, cookies.get(COOKIE))
+    return None if user_id is None else {"user_id": user_id, "token": None, "cookies": {}}
+
+
+def log_out(db_path, cookies) -> None:
+    if cookies.get(COOKIE):
+        delete_session(db_path, cookies[COOKIE])
+
+
 # ---------- pending IDs (photo identified, waiting for the user to confirm) ----------
 
 def add_pending(db_path, user_id, photo_file, photo_hash, latitude, longitude, guesses) -> str:
@@ -232,6 +264,11 @@ def photo_already_used(db_path, user_id: int, photo_hash: str) -> bool:
         row = conn.execute("SELECT 1 FROM catches WHERE user_id = ? AND photo_hash = ?",
                            (user_id, photo_hash)).fetchone()
     return row is not None
+
+
+def read_photo(db_path, catch: dict) -> bytes | None:
+    photo = Path(catch["photo_file"])
+    return photo.read_bytes() if photo.is_file() else None
 
 
 def all_catch_points(db_path) -> list[dict]:

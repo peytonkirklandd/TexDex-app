@@ -9,15 +9,33 @@ needs no code change.
   TEXDEX_REGIONS_GEOJSON     ecoregion shapes
   TEXDEX_OUTLINE_GEOJSON     Texas outline (for drawing the map)
   TEXDEX_APP_DATA            folder for the database and saved photos
+  SUPABASE_URL, SUPABASE_ANON_KEY   when both are set, accounts, catches and
+                             photos are kept in Supabase instead of the local
+                             SQLite file (see supabase_store.py)
+
+Settings can also come from a .env file in the project folder (never
+committed). Real environment variables win over .env.
 """
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / ".env")
 DEMO = ROOT / "app" / "demo_data"
 PROCESSED = ROOT / "data" / "processed"
+
+
+def _project_url(url: str | None) -> str | None:
+    """Supabase's dashboard shows the address both as https://x.supabase.co
+    and as https://x.supabase.co/rest/v1/. Accept either; keep the first."""
+    if not url:
+        return None
+    url = url.strip().rstrip("/")
+    return url.removesuffix("/rest/v1")
 
 
 def load_config() -> dict:
@@ -48,6 +66,9 @@ def load_config() -> dict:
         # flag means nothing. Only enforce it with the real model.
         "use_fake_id": os.getenv("USE_FAKE_ID", "1") == "1",
         "warm_up_model": True,
+        # Empty = use the local SQLite file.
+        "supabase_url": _project_url(os.getenv("SUPABASE_URL")),
+        "supabase_key": os.getenv("SUPABASE_ANON_KEY") or None,
     }
 
 
